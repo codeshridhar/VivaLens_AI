@@ -1,0 +1,680 @@
+{
+  "meta": {
+    "project": "VivaLens AI",
+    "version": "1.0",
+    "author": "NEXUS",
+    "description": "First-Order Logic style knowledge base for viva answer evaluation across 5 CS/AI topics.",
+    "scoring_scale": "0-10",
+    "global_filler_words": [
+      "um", "uh", "like", "basically", "actually",
+      "you know", "sort of", "kind of", "I guess",
+      "I mean", "well", "so yeah", "right", "obviously"
+    ],
+    "global_rules": [
+      {
+        "rule_id": "GR01_MIN_LENGTH",
+        "description": "∀x (Answer(x) ∧ WordCount(x) < 15) → TooShort(x)",
+        "type": "length_check",
+        "condition": "word_count < 15",
+        "penalty": -2.0,
+        "reason": "Answer is too brief to demonstrate understanding."
+      },
+      {
+        "rule_id": "GR02_GOOD_LENGTH",
+        "description": "∀x (Answer(x) ∧ WordCount(x) ≥ 40 ∧ WordCount(x) ≤ 200) → AdequateLength(x)",
+        "type": "length_check",
+        "condition": "40 <= word_count <= 200",
+        "bonus": 0.5,
+        "reason": "Answer length is appropriate for a viva response."
+      },
+      {
+        "rule_id": "GR03_EXCESSIVE_LENGTH",
+        "description": "∀x (Answer(x) ∧ WordCount(x) > 300) → Rambling(x)",
+        "type": "length_check",
+        "condition": "word_count > 300",
+        "penalty": -0.5,
+        "reason": "Answer is excessively long; may indicate lack of focus."
+      },
+      {
+        "rule_id": "GR04_FILLER_PENALTY_LOW",
+        "description": "∀x (Answer(x) ∧ FillerCount(x) ≥ 3 ∧ FillerCount(x) ≤ 5) → ModerateFillers(x)",
+        "type": "filler_penalty",
+        "condition": "3 <= filler_count <= 5",
+        "penalty": -0.5,
+        "reason": "Moderate use of filler words reduces clarity."
+      },
+      {
+        "rule_id": "GR05_FILLER_PENALTY_HIGH",
+        "description": "∀x (Answer(x) ∧ FillerCount(x) > 5) → ExcessiveFillers(x)",
+        "type": "filler_penalty",
+        "condition": "filler_count > 5",
+        "penalty": -1.5,
+        "reason": "Excessive filler words severely reduce answer quality."
+      },
+      {
+        "rule_id": "GR06_NO_FILLERS_BONUS",
+        "description": "∀x (Answer(x) ∧ FillerCount(x) == 0 ∧ WordCount(x) ≥ 20) → CleanSpeech(x)",
+        "type": "filler_penalty",
+        "condition": "filler_count == 0 and word_count >= 20",
+        "bonus": 0.5,
+        "reason": "No filler words detected; indicates confident delivery."
+      },
+      {
+        "rule_id": "GR07_STRUCTURE_BONUS",
+        "description": "∀x (Answer(x) ∧ HasStructureMarkers(x)) → WellStructured(x)",
+        "type": "structure",
+        "condition": "contains_structure_markers",
+        "bonus": 0.5,
+        "reason": "Answer uses structural markers (firstly, secondly, in conclusion) showing organized thought.",
+        "structure_markers": [
+          "first", "firstly", "second", "secondly", "third",
+          "thirdly", "finally", "in conclusion", "to summarize",
+          "on the other hand", "moreover", "furthermore",
+          "for example", "for instance", "in contrast"
+        ]
+      }
+    ]
+  },
+
+  "topics": {
+    "Artificial Intelligence": {
+      "expected_keywords": [
+        "search", "heuristic", "A*", "BFS", "DFS", "depth-first",
+        "breadth-first", "uniform cost", "greedy", "admissible",
+        "consistent", "constraint", "CSP", "backtracking",
+        "constraint propagation", "arc consistency", "domain",
+        "variable", "proposition", "predicate", "first-order logic",
+        "resolution", "unification", "modus ponens", "forward chaining",
+        "backward chaining", "knowledge base", "inference",
+        "planning", "STRIPS", "goal stack", "precondition",
+        "effect", "state space", "operator", "plan", "subgoal",
+        "agent", "environment", "rational", "PEAS", "percept",
+        "action", "goal", "utility", "minimax", "alpha-beta pruning",
+        "game tree", "adversarial search"
+      ],
+      "sample_questions": [
+        {
+          "id": "AI_Q01",
+          "question": "Explain the A* search algorithm and why it is considered optimal.",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "A*", "heuristic", "f(n)", "g(n)", "h(n)",
+            "admissible", "optimal", "open list", "closed list",
+            "path cost", "goal state", "complete"
+          ]
+        },
+        {
+          "id": "AI_Q02",
+          "question": "What is a Constraint Satisfaction Problem? Give an example.",
+          "difficulty": "easy",
+          "bloom_level": "remember",
+          "ideal_keywords": [
+            "CSP", "variables", "domains", "constraints",
+            "assignment", "consistent", "complete",
+            "backtracking", "example", "map coloring", "Sudoku"
+          ]
+        },
+        {
+          "id": "AI_Q03",
+          "question": "Differentiate between forward chaining and backward chaining in inference.",
+          "difficulty": "medium",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "forward chaining", "backward chaining", "data-driven",
+            "goal-driven", "modus ponens", "facts", "rules",
+            "conclusion", "hypothesis", "knowledge base",
+            "inference engine", "top-down", "bottom-up"
+          ]
+        },
+        {
+          "id": "AI_Q04",
+          "question": "Explain the STRIPS representation used in AI planning.",
+          "difficulty": "hard",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "STRIPS", "precondition", "add list", "delete list",
+            "effect", "state", "operator", "action", "goal",
+            "initial state", "plan", "subgoal", "planning problem"
+          ]
+        },
+        {
+          "id": "AI_Q05",
+          "question": "What is an intelligent agent? Describe the PEAS framework.",
+          "difficulty": "easy",
+          "bloom_level": "remember",
+          "ideal_keywords": [
+            "agent", "environment", "percept", "action",
+            "rational", "PEAS", "performance", "environment",
+            "actuators", "sensors", "autonomous", "goal"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "AI_R01_KEYWORD_THRESHOLD",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'AI') ∧ KeywordMatch(x) ≥ 4) → GoodAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords >= 4",
+          "bonus": 1.0,
+          "reason": "Answer contains sufficient AI-specific terminology."
+        },
+        {
+          "rule_id": "AI_R02_KEYWORD_LOW",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'AI') ∧ KeywordMatch(x) ≤ 1) → WeakAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords <= 1",
+          "penalty": -1.5,
+          "reason": "Answer lacks essential AI terminology."
+        },
+        {
+          "rule_id": "AI_R03_DEFINITION_PRESENT",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'AI') ∧ ContainsDefinition(x)) → ConceptuallySound(x)",
+          "type": "completeness",
+          "condition": "contains_definition_phrase",
+          "definition_phrases": [
+            "is defined as", "refers to", "can be described as",
+            "is a", "means", "is the process of", "is an algorithm"
+          ],
+          "bonus": 0.5,
+          "reason": "Answer includes a clear definition of the core concept."
+        },
+        {
+          "rule_id": "AI_R04_EXAMPLE_PRESENT",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'AI') ∧ ContainsExample(x)) → AppliedUnderstanding(x)",
+          "type": "depth",
+          "condition": "contains_example_phrase",
+          "example_phrases": [
+            "for example", "for instance", "such as",
+            "consider", "e.g.", "a real-world example"
+          ],
+          "bonus": 0.5,
+          "reason": "Answer demonstrates applied understanding with an example."
+        }
+      ]
+    },
+
+    "Data Structures": {
+      "expected_keywords": [
+        "array", "linked list", "singly linked", "doubly linked",
+        "stack", "queue", "LIFO", "FIFO", "tree", "binary tree",
+        "BST", "binary search tree", "AVL", "red-black tree",
+        "heap", "min-heap", "max-heap", "graph", "directed",
+        "undirected", "weighted", "adjacency list", "adjacency matrix",
+        "BFS", "DFS", "traversal", "inorder", "preorder", "postorder",
+        "sorting", "bubble sort", "merge sort", "quick sort",
+        "heap sort", "time complexity", "space complexity",
+        "O(n)", "O(log n)", "O(n log n)", "O(n^2)",
+        "hashing", "hash table", "hash function", "collision",
+        "chaining", "open addressing", "recursion", "pointer",
+        "node", "root", "leaf", "depth", "height", "balanced"
+      ],
+      "sample_questions": [
+        {
+          "id": "DS_Q01",
+          "question": "Explain the difference between a stack and a queue with real-world examples.",
+          "difficulty": "easy",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "stack", "queue", "LIFO", "FIFO", "push", "pop",
+            "enqueue", "dequeue", "top", "front", "rear", "example"
+          ]
+        },
+        {
+          "id": "DS_Q02",
+          "question": "What is a Binary Search Tree? Explain its insertion and search operations.",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "BST", "binary search tree", "left child", "right child",
+            "less than", "greater than", "insertion", "search",
+            "O(log n)", "O(n)", "root", "comparison", "traversal"
+          ]
+        },
+        {
+          "id": "DS_Q03",
+          "question": "Compare merge sort and quick sort in terms of time and space complexity.",
+          "difficulty": "hard",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "merge sort", "quick sort", "divide and conquer",
+            "O(n log n)", "O(n^2)", "worst case", "best case",
+            "average case", "space complexity", "in-place",
+            "stable", "unstable", "pivot", "partition"
+          ]
+        },
+        {
+          "id": "DS_Q04",
+          "question": "What is hashing? Explain collision resolution techniques.",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "hashing", "hash function", "hash table", "collision",
+            "chaining", "open addressing", "linear probing",
+            "quadratic probing", "double hashing", "load factor",
+            "O(1)", "key-value"
+          ]
+        },
+        {
+          "id": "DS_Q05",
+          "question": "Explain graph traversal using BFS and DFS.",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "BFS", "DFS", "breadth-first", "depth-first",
+            "queue", "stack", "visited", "adjacency",
+            "level order", "backtracking", "graph", "vertex", "edge"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "DS_R01_KEYWORD_THRESHOLD",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DS') ∧ KeywordMatch(x) ≥ 4) → GoodAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords >= 4",
+          "bonus": 1.0,
+          "reason": "Answer uses adequate data structure terminology."
+        },
+        {
+          "rule_id": "DS_R02_KEYWORD_LOW",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DS') ∧ KeywordMatch(x) ≤ 1) → WeakAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords <= 1",
+          "penalty": -1.5,
+          "reason": "Answer lacks essential data structure terminology."
+        },
+        {
+          "rule_id": "DS_R03_COMPLEXITY_MENTIONED",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DS') ∧ MentionsComplexity(x)) → AnalyticalDepth(x)",
+          "type": "depth",
+          "condition": "contains_complexity_notation",
+          "complexity_patterns": [
+            "O(1)", "O(n)", "O(log n)", "O(n log n)",
+            "O(n^2)", "O(2^n)", "O(n!)", "time complexity",
+            "space complexity", "big-O", "big O"
+          ],
+          "bonus": 1.0,
+          "reason": "Answer demonstrates analytical depth by discussing complexity."
+        },
+        {
+          "rule_id": "DS_R04_COMPARISON_STRUCTURE",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DS') ∧ QuestionAsksCompare(x) ∧ HasComparison(x)) → CompleteAnswer(x)",
+          "type": "completeness",
+          "condition": "contains_comparison_phrases",
+          "comparison_phrases": [
+            "compared to", "on the other hand", "unlike",
+            "whereas", "in contrast", "difference",
+            "advantage", "disadvantage", "better", "worse"
+          ],
+          "bonus": 0.5,
+          "reason": "Answer properly structures a comparison as required by the question."
+        }
+      ]
+    },
+
+    "Database Management": {
+      "expected_keywords": [
+        "normalization", "1NF", "2NF", "3NF", "BCNF",
+        "functional dependency", "partial dependency",
+        "transitive dependency", "candidate key", "primary key",
+        "foreign key", "super key", "ACID", "atomicity",
+        "consistency", "isolation", "durability", "transaction",
+        "commit", "rollback", "concurrency", "locking",
+        "SQL", "NoSQL", "relational", "non-relational",
+        "table", "row", "column", "schema", "index",
+        "B-tree", "B+ tree", "clustering", "hash index",
+        "query", "join", "inner join", "outer join",
+        "subquery", "aggregate", "GROUP BY", "HAVING",
+        "ER diagram", "entity", "relationship", "attribute",
+        "redundancy", "anomaly", "insertion anomaly",
+        "deletion anomaly", "update anomaly"
+      ],
+      "sample_questions": [
+        {
+          "id": "DB_Q01",
+          "question": "Explain the normal forms 1NF, 2NF, and 3NF with examples.",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "1NF", "2NF", "3NF", "atomic", "functional dependency",
+            "partial dependency", "transitive dependency",
+            "primary key", "non-prime attribute", "example",
+            "redundancy", "anomaly"
+          ]
+        },
+        {
+          "id": "DB_Q02",
+          "question": "What are ACID properties? Why are they important in database transactions?",
+          "difficulty": "easy",
+          "bloom_level": "remember",
+          "ideal_keywords": [
+            "ACID", "atomicity", "consistency", "isolation",
+            "durability", "transaction", "commit", "rollback",
+            "reliable", "data integrity", "concurrent"
+          ]
+        },
+        {
+          "id": "DB_Q03",
+          "question": "Compare SQL and NoSQL databases. When would you use each?",
+          "difficulty": "medium",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "SQL", "NoSQL", "relational", "non-relational",
+            "schema", "schema-less", "structured", "unstructured",
+            "scalability", "horizontal", "vertical",
+            "MongoDB", "MySQL", "PostgreSQL", "use case",
+            "ACID", "BASE", "flexibility"
+          ]
+        },
+        {
+          "id": "DB_Q04",
+          "question": "What is indexing in databases? Explain B-tree and hash indexing.",
+          "difficulty": "hard",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "index", "indexing", "B-tree", "B+ tree", "hash index",
+            "search", "O(log n)", "O(1)", "range query",
+            "equality query", "clustered", "non-clustered",
+            "performance", "trade-off", "write overhead"
+          ]
+        },
+        {
+          "id": "DB_Q05",
+          "question": "What are insertion, deletion, and update anomalies? How does normalization solve them?",
+          "difficulty": "medium",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "anomaly", "insertion anomaly", "deletion anomaly",
+            "update anomaly", "redundancy", "normalization",
+            "functional dependency", "decomposition",
+            "lossless", "data integrity"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "DB_R01_KEYWORD_THRESHOLD",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DBMS') ∧ KeywordMatch(x) ≥ 4) → GoodAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords >= 4",
+          "bonus": 1.0,
+          "reason": "Answer uses adequate database terminology."
+        },
+        {
+          "rule_id": "DB_R02_KEYWORD_LOW",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DBMS') ∧ KeywordMatch(x) ≤ 1) → WeakAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords <= 1",
+          "penalty": -1.5,
+          "reason": "Answer lacks essential database terminology."
+        },
+        {
+          "rule_id": "DB_R03_ACRONYM_EXPANSION",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DBMS') ∧ ExpandsAcronyms(x)) → PreciseAnswer(x)",
+          "type": "depth",
+          "condition": "expands_acronyms",
+          "acronym_expansions": {
+            "ACID": ["atomicity", "consistency", "isolation", "durability"],
+            "1NF": ["first normal form"],
+            "2NF": ["second normal form"],
+            "3NF": ["third normal form"],
+            "BCNF": ["boyce-codd normal form"],
+            "SQL": ["structured query language"]
+          },
+          "bonus": 0.5,
+          "reason": "Answer expands acronyms showing thorough understanding."
+        },
+        {
+          "rule_id": "DB_R04_EXAMPLE_PRESENT",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'DBMS') ∧ ContainsExample(x)) → AppliedUnderstanding(x)",
+          "type": "depth",
+          "condition": "contains_example_phrase",
+          "example_phrases": [
+            "for example", "for instance", "such as",
+            "consider a table", "suppose", "e.g."
+          ],
+          "bonus": 0.5,
+          "reason": "Answer includes a concrete database example."
+        }
+      ]
+    },
+
+    "Operating Systems": {
+      "expected_keywords": [
+        "process", "thread", "CPU", "scheduling", "FCFS",
+        "SJF", "round robin", "priority scheduling",
+        "multilevel queue", "context switch", "PCB",
+        "deadlock", "mutual exclusion", "hold and wait",
+        "no preemption", "circular wait", "banker's algorithm",
+        "resource allocation graph", "safe state", "unsafe state",
+        "paging", "segmentation", "page table", "TLB",
+        "page fault", "virtual memory", "physical memory",
+        "frame", "page", "swap", "thrashing", "demand paging",
+        "FIFO", "LRU", "optimal page replacement",
+        "semaphore", "mutex", "synchronization",
+        "race condition", "critical section", "producer consumer",
+        "reader writer", "dining philosophers",
+        "kernel", "user mode", "system call", "interrupt",
+        "fork", "zombie", "orphan", "IPC", "pipe", "shared memory"
+      ],
+      "sample_questions": [
+        {
+          "id": "OS_Q01",
+          "question": "What are the four necessary conditions for deadlock? How can deadlock be prevented?",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "deadlock", "mutual exclusion", "hold and wait",
+            "no preemption", "circular wait", "prevention",
+            "avoidance", "banker's algorithm", "resource",
+            " Coffman conditions"
+          ]
+        },
+        {
+          "id": "OS_Q02",
+          "question": "Explain paging in operating systems. What is a page fault?",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "paging", "page", "frame", "page table", "page fault",
+            "virtual memory", "physical memory", "fixed size",
+            "translation", "TLB", "demand paging", "swap"
+          ]
+        },
+        {
+          "id": "OS_Q03",
+          "question": "Compare FCFS, SJF, and Round Robin scheduling algorithms.",
+          "difficulty": "medium",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "FCFS", "SJF", "round robin", "time quantum",
+            "preemptive", "non-preemptive", "waiting time",
+            "turnaround time", "convoy effect", "starvation",
+            "context switch", "throughput"
+          ]
+        },
+        {
+          "id": "OS_Q04",
+          "question": "What is the difference between a process and a thread?",
+          "difficulty": "easy",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "process", "thread", "memory", "address space",
+            "shared", "independent", "context switch",
+            "lightweight", "heavyweight", "PCB", "TCB",
+            "creation", "overhead", "concurrency"
+          ]
+        },
+        {
+          "id": "OS_Q05",
+          "question": "Explain the Banker's algorithm for deadlock avoidance.",
+          "difficulty": "hard",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "banker's algorithm", "safe state", "unsafe state",
+            "available", "max", "allocation", "need",
+            "resource", "request", "grant", "sequence",
+            "deadlock avoidance", "Dijkstra"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "OS_R01_KEYWORD_THRESHOLD",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'OS') ∧ KeywordMatch(x) ≥ 4) → GoodAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords >= 4",
+          "bonus": 1.0,
+          "reason": "Answer uses adequate operating systems terminology."
+        },
+        {
+          "rule_id": "OS_R02_KEYWORD_LOW",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'OS') ∧ KeywordMatch(x) ≤ 1) → WeakAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords <= 1",
+          "penalty": -1.5,
+          "reason": "Answer lacks essential OS terminology."
+        },
+        {
+          "rule_id": "OS_R03_CONDITIONS_ENUMERATED",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'OS') ∧ QuestionAsksConditions(x) ∧ EnumeratesConditions(x)) → CompleteAnswer(x)",
+          "type": "completeness",
+          "condition": "contains_numbered_list",
+          "bonus": 0.5,
+          "reason": "Answer properly enumerates conditions as required."
+        },
+        {
+          "rule_id": "OS_R04_ALGORITHM_STEPS",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'OS') ∧ QuestionAsksAlgorithm(x) ∧ HasSteps(x)) → ProceduralClarity(x)",
+          "type": "depth",
+          "condition": "contains_step_phrases",
+          "step_phrases": [
+            "step 1", "step 2", "first", "then", "next",
+            "after that", "finally", "initialize", "check",
+            "if", "else", "repeat", "until"
+          ],
+          "bonus": 0.5,
+          "reason": "Answer explains algorithm with clear procedural steps."
+        }
+      ]
+    },
+
+    "Computer Networks": {
+      "expected_keywords": [
+        "OSI", "TCP/IP", "physical layer", "data link layer",
+        "network layer", "transport layer", "session layer",
+        "presentation layer", "application layer", "TCP", "UDP",
+        "connection-oriented", "connectionless", "reliable",
+        "unreliable", "three-way handshake", "SYN", "ACK", "FIN",
+        "flow control", "congestion control", "sliding window",
+        "routing", "static routing", "dynamic routing",
+        "distance vector", "link state", "RIP", "OSPF", "BGP",
+        "DNS", "domain name system", "IP address", "subnet",
+        "subnet mask", "MAC address", "ARP", "DHCP", "HTTP",
+        "HTTPS", "FTP", "SMTP", "packet", "frame", "datagram",
+        "segment", "encapsulation", "decapsulation", "header",
+        "payload", "port", "socket", "firewall", "NAT",
+        "bandwidth", "latency", "throughput", "protocol"
+      ],
+      "sample_questions": [
+        {
+          "id": "CN_Q01",
+          "question": "Explain the seven layers of the OSI model with their functions.",
+          "difficulty": "medium",
+          "bloom_level": "remember",
+          "ideal_keywords": [
+            "OSI", "physical", "data link", "network", "transport",
+            "session", "presentation", "application", "layer",
+            "encapsulation", "protocol", "function"
+          ]
+        },
+        {
+          "id": "CN_Q02",
+          "question": "Differentiate between TCP and UDP protocols.",
+          "difficulty": "easy",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "TCP", "UDP", "connection-oriented", "connectionless",
+            "reliable", "unreliable", "three-way handshake",
+            "overhead", "speed", "streaming", "DNS",
+            "flow control", "error checking", "ordered"
+          ]
+        },
+        {
+          "id": "CN_Q03",
+          "question": "Explain how DNS resolution works step by step.",
+          "difficulty": "medium",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "DNS", "domain name", "IP address", "resolver",
+            "root server", "TLD server", "authoritative server",
+            "cache", "recursive", "iterative", "query", "response"
+          ]
+        },
+        {
+          "id": "CN_Q04",
+          "question": "What is the difference between distance vector and link state routing?",
+          "difficulty": "hard",
+          "bloom_level": "analyze",
+          "ideal_keywords": [
+            "distance vector", "link state", "RIP", "OSPF",
+            "Bellman-Ford", "Dijkstra", "routing table",
+            "neighbor", "topology", "convergence",
+            "count to infinity", "flooding", "LSA"
+          ]
+        },
+        {
+          "id": "CN_Q05",
+          "question": "Explain the TCP three-way handshake process.",
+          "difficulty": "easy",
+          "bloom_level": "understand",
+          "ideal_keywords": [
+            "three-way handshake", "SYN", "ACK", "SYN-ACK",
+            "client", "server", "connection", "establish",
+            "sequence number", "port", "reliable"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "rule_id": "CN_R01_KEYWORD_THRESHOLD",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'CN') ∧ KeywordMatch(x) ≥ 4) → GoodAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords >= 4",
+          "bonus": 1.0,
+          "reason": "Answer uses adequate networking terminology."
+        },
+        {
+          "rule_id": "CN_R02_KEYWORD_LOW",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'CN') ∧ KeywordMatch(x) ≤ 1) → WeakAnswer(x)",
+          "type": "keyword_threshold",
+          "condition": "matched_keywords <= 1",
+          "penalty": -1.5,
+          "reason": "Answer lacks essential networking terminology."
+        },
+        {
+          "rule_id": "CN_R03_LAYER_MENTION",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'CN') ∧ QuestionAsksOSI(x) ∧ MentionsAllLayers(x)) → CompleteAnswer(x)",
+          "type": "completeness",
+          "condition": "mentions_layer_count >= 5",
+          "bonus": 1.0,
+          "reason": "Answer covers most/all OSI layers as expected."
+        },
+        {
+          "rule_id": "CN_R04_PROTOCOL_DETAIL",
+          "description": "∀x (Answer(x) ∧ Topic(x, 'CN') ∧ MentionsProtocolMechanism(x)) → DeepUnderstanding(x)",
+          "type": "depth",
+          "condition": "contains_mechanism_phrases",
+          "mechanism_phrases": [
+            "handshake", "acknowledgment", "retransmission",
+            "timeout", "window size", "sequence number",
+            "checksum", "header", "encapsulation"
+          ],
+          "bonus": 0.5,
+          "reason": "Answer explains protocol mechanisms in detail."
+        }
+      ]
+    }
+  }
+}

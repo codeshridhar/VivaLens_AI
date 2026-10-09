@@ -1,0 +1,10 @@
+# VivaLens AI — Streamlit configuration
+# headless = true  -> skips the interactive email/onboarding prompt so
+#                     `streamlit run app.py` always launches cleanly.
+# gatherUsageStats = false -> fully offline; no telemetry collection.
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false

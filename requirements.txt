@@ -1,0 +1,20 @@
+# VivaLens AI - All dependencies (free, offline-first)
+# Install: pip install -r requirements.txt
+
+# --- UI Framework ---
+streamlit==1.41.1
+
+# --- NLP & Text Analysis ---
+nltk==3.9.1
+
+# --- Offline Speech-to-Text ---
+vosk==0.3.45
+
+# --- Audio Recording & Processing ---
+sounddevice==0.5.1
+soundfile==0.12.1
+numpy==1.26.4
+
+# --- Slide & Document Parsing ---
+python-pptx==1.0.2
+PyPDF2==3.0.1

@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Voice recordings (personal data - never commit)
+voice recordings/
+*.wav
+
+# Runtime
+model/
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
