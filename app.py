@@ -72,6 +72,21 @@ st.markdown("""
     .score-medium { background-color: #f5a623; }
     .score-low    { background-color: #e74c3c; }
 
+    /* Native-style buttons */
+    .stButton > button {
+        background: #1c2030;
+        color: #e6e9f2;
+        font-weight: 500;
+        border: 1px solid #30364a;
+        border-radius: 8px;
+        transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .stButton > button:hover {
+        background: #242a3d;
+        border-color: #4a5a7a;
+        color: #ffffff;
+    }
+
     /* ----- Landing page styling ----- */
     .hero-title {
         font-size: 3.2rem;
