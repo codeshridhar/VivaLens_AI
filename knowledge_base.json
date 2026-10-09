@@ -2,7 +2,7 @@
   "meta": {
     "project": "VivaLens AI",
     "version": "1.0",
-    "author": "NEXUS",
+    "author": "VivaLens AI Team",
     "description": "First-Order Logic style knowledge base for viva answer evaluation across 5 CS/AI topics.",
     "scoring_scale": "0-10",
     "global_filler_words": [

@@ -1,17 +1,18 @@
 """
 app.py — VivaLens AI
-Sprint 5 (v2) | Agent: PRISM (UI/UX & Speech Engineer)
+====================
+Main Streamlit application for VivaLens AI.
 
-Main Streamlit multi-page application for VivaLens AI.
 Provides 5 navigation tabs: Home, Viva Evaluator, Slide Analyzer,
 Viva Simulator, and Analytics Dashboard.
 
-v2 Updates:
-    - Tab 1: Rebuilt as a professional product landing page
-    - Tab 2: Added follow-up questions + bulleted suggestions
-    - Tab 5: Robust study plan with default fallback + cleaner UI
+Highlights:
+    - Tab 1: Professional product overview with syllabus mapping
+    - Tab 2: Viva answer evaluation with follow-up question suggestions
+    - Tab 5: Study plan generation with default fallback
 
-Run:  streamlit run app.py
+Run:
+    streamlit run app.py
 """
 
 from __future__ import annotations
@@ -346,7 +347,7 @@ elif PAGE == "🎤 Viva Evaluator":
     st.markdown("Speak or type your answer and get instant AI-powered feedback.")
 
     if not _HAS_TEXT_ANALYZER:
-        st.error("❌ `text_analyzer.py` not found. Please compile the Sprint 2 files first.")
+        st.error("❌ `text_analyzer.py` not found. Please check that all project files are present.")
         st.stop()
 
     st.divider()

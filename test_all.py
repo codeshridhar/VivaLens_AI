@@ -1,6 +1,6 @@
 """
 test_all.py — VivaLens AI End-to-End Test Suite
-=================================================
+================================================
 Imports EVERY module and exercises its core function with sample data.
 Prints PASS/FAIL per test and a final summary.
 
@@ -8,8 +8,6 @@ Run:
     python test_all.py
 
 Exit code: 0 = all tests passed, 1 = at least one failure.
-
-Agent: FORGE (Integration & Debug Master)
 """
 
 from __future__ import annotations
@@ -183,7 +181,6 @@ def test_speech_module_availability() -> None:
 def main() -> int:
     print("=" * 68)
     print("  VivaLens AI — End-to-End Test Suite")
-    print("  FORGE | run: python test_all.py")
     print("=" * 68)
     print()
 

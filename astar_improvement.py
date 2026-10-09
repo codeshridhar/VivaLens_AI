@@ -1,28 +1,25 @@
 """
 astar_improvement.py — A* Search for Optimal Study Improvement Path
-===================================================================
-Part of VivaLens AI | Agent: CIPHER (Algorithm Specialist)
-
+====================================================================
 Finds the optimal sequence of study sessions to elevate underperforming
 viva topic scores above a target threshold using A* Search.
 
 Covers: SPPU TY AI 2024 — Unit 2 (Heuristic Search)
 
 Search Problem Formulation:
-  • State: tuple of current topic scores (s₁, s₂, ..., sₙ)
-  • Initial State: scores extracted from performance report / inference engine
-  • Goal State: ∀ topic i, score[i] ≥ target_score (e.g. 7.0/10)
-  • Actions: study_topic(i, hours) → increases score[i] by (hours × rate)
-  • Path Cost g(n): Total study hours invested so far
-  • Heuristic h(n): Admissible estimate of remaining study hours needed
-                   h(n) = Σ max(0, target - score[i]) / rate
+  - State: tuple of current topic scores (s1, s2, ..., sT)
+  - Initial State: scores extracted from performance report / inference engine
+  - Goal State: for all i, score[i] >= target_score (e.g. 7.0/10)
+  - Actions: study_topic(i, hours) --> increases score[i] by (hours * rate)
+  - Path Cost g(n): Total study hours invested so far
+  - Heuristic h(n): Admissible estimate of remaining study hours needed
+                   h(n) = sum_i max(0, target - score[i]) / rate
                    (Admissible & Consistent: never overestimates hours)
-  • Evaluation Function: f(n) = g(n) + h(n)
+  - Evaluation Function: f(n) = g(n) + h(n)
 
-Integration notes for PRISM / FORGE:
-  - Main entry: find_improvement_path(current_scores, target_score, max_hours)
-  - Returns: list[dict] with keys:
-      topic, current_score, target_score, hours_needed, priority, action
+Main entry: find_improvement_path(current_scores, target_score, max_hours)
+Returns: list[dict] with keys:
+    topic, current_score, target_score, hours_needed, priority, action
 """
 
 import heapq
@@ -292,7 +289,7 @@ def _run_tests() -> None:
     """Run A* search test scenarios and print formatted execution output."""
 
     print("=" * 70)
-    print("  CIPHER — astar_improvement.py  |  TEST SUITE")
+    print("  VivaLens AI — A* Improvement Finder Test Suite")
     print("=" * 70)
 
     # ── Scenario 1: Standard Viva Performance with Weak Areas ──

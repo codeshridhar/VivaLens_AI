@@ -1,8 +1,6 @@
 """
 csp_question_gen.py — CSP-based Viva Question Generator
 ========================================================
-Part of VivaLens AI | Agent: CIPHER (Algorithm Specialist)
-
 Generates balanced viva question sets using Constraint Satisfaction
 Problem (CSP) solving with Backtracking Search and Forward Checking.
 
@@ -11,15 +9,14 @@ Covers: SPPU TY AI 2024 — Unit 3 (CSP & Adversarial Search)
 Constraints enforced:
   1. No duplicate questions (AllDifferent)
   2. Difficulty balance (mix of easy/medium/hard when "mixed")
-  3. Bloom's taxonomy coverage (≥ 2 distinct levels)
+  3. Bloom's taxonomy coverage (>= 2 distinct levels)
   4. Topic spread (even distribution when topic = "all")
 
-Integration notes for PRISM / FORGE:
-  - Main entry: generate_viva_questions(topic, difficulty, count, time_limit_min)
-  - Returns list[dict] with keys: id, question, difficulty, bloom_level,
+Main entry: generate_viva_questions(topic, difficulty, count, time_limit_min)
+Returns list[dict] with keys: id, question, difficulty, bloom_level,
     ideal_keywords, allocated_time_sec
-  - Loads from knowledge_base.json and MERGES it with the built-in bank
-    (deduplicated by id), with alias-aware topic matching.
+Loads from knowledge_base.json and MERGES it with the built-in bank
+(deduplicated by id), with alias-aware topic matching.
 """
 
 import json
@@ -575,7 +572,7 @@ def _run_tests() -> None:
     """Run two test scenarios and print results."""
 
     print("=" * 65)
-    print("  CIPHER — csp_question_gen.py  |  TEST SUITE")
+    print("  VivaLens AI — Question Generator Test Suite")
     print("=" * 65)
 
     # ── Scenario 1: Single topic, mixed difficulty ──

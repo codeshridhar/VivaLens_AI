@@ -1,11 +1,7 @@
 """
 slide_analyzer.py — VivaLens AI
-=================================
+================================
 Presentation & Slide Analyzer for PPTX and PDF files.
-
-Author : NEXUS (Knowledge & Logic Architect)
-Version: 1.1  (Bug-fix release)
-License: Free / Academic
 
 Evaluates presentation slides on content density, structure,
 visual balance, title coverage, and topic keyword relevance.
@@ -17,7 +13,8 @@ Dependencies (optional, gracefully handled if missing):
   - PyPDF2       (for .pdf files)
 
 Changelog:
-  v1.1 — Fixed total_slides count and title_coverage_pct calculation.
+  v1.0 - Initial implementation
+  v1.1 - Fixed total_slides count and title_coverage_pct calculation.
          Title detection now explicitly checks slide.shapes.title.
 """
 
@@ -678,7 +675,7 @@ def _error_result(file_name: str, file_type: str, error_msg: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-#  MOCK TEST SUITE
+#  SELF-TESTS
 # ---------------------------------------------------------------------------
 
 def test_slide_analyzer() -> None:
@@ -688,7 +685,6 @@ def test_slide_analyzer() -> None:
     """
     print("=" * 70)
     print("  VivaLens AI — Slide Analyzer Test Suite (v1.1)")
-    print("  Agent: NEXUS | Module: slide_analyzer.py")
     print("=" * 70)
 
     # ---- TEST 1: Good AI Presentation ----

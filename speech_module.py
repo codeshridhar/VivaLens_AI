@@ -1,11 +1,10 @@
 """
 speech_module.py — VivaLens AI
-Sprint 5 | Agent: PRISM (UI/UX & Speech Engineer)
-
+==============================
 Offline audio recording and speech-to-text transcription pipeline.
 Uses Vosk for offline STT, sounddevice for mic capture, and soundfile
 for WAV I/O. All imports are wrapped in try/except so the module
-never crashes — it degrades gracefully with clear status messages.
+never crashes -- it degrades gracefully with clear status messages.
 
 Dependencies (all free, pip-installable):
     sounddevice, soundfile, numpy, vosk

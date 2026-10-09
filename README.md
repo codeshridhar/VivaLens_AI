@@ -113,15 +113,13 @@ VivaLens_AI/
 
 ---
 
-## Agent Credits
+## Credits & Acknowledgments
 
-| Agent | Role |
-|-------|------|
-| **ARCHON** | Master Head — Project Coordinator |
-| **NEXUS** | Knowledge & Logic Architect |
-| **CIPHER** | Algorithm Specialist |
-| **PRISM** | UI/UX & Speech Engineer |
-| **FORGE** | Integration & Debug Master |
+- **Architecture & core algorithms** — designed and implemented in-house using
+  classical AI techniques (forward/backward chaining, constraint satisfaction,
+  A* heuristic search, and goal stack planning) as taught in the SPPU TY AI syllabus.
+- **Built with free, open tools** — Python, Streamlit, Vosk, NLTK (optional),
+  python-pptx, and PyPDF2. No paid services or external AI APIs are used.
 
 ---
 

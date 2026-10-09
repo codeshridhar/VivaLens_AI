@@ -1,6 +1,6 @@
 """
 main.py — VivaLens AI (Entry Point)
-=====================================
+===================================
 Launcher for the VivaLens AI Streamlit application.
 
 Usage:
@@ -8,8 +8,6 @@ Usage:
     (equivalent to: streamlit run app.py)
 
 If Streamlit is missing, prints install instructions instead of crashing.
-
-Agent: FORGE (Integration & Debug Master)
 """
 
 import subprocess

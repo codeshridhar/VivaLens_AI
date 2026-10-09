@@ -1,14 +1,13 @@
 """
 inference_engine.py — VivaLens AI
-==================================
+=================================
 Forward & Backward Chaining Inference Engine for Viva Answer Evaluation.
 
-Author : NEXUS (Knowledge & Logic Architect)
-Version: 1.1  (Enhancement release)
-License: Free / Academic
+Version: 1.1
 
 Changelog:
-  v1.1 — Added "suggested_followup_questions" to evaluate_answer() output.
+  v1.0 - Initial implementation: rule-based scoring over knowledge_base.json
+  v1.1 - Added "suggested_followup_questions" to evaluate_answer() output.
          Generates 2-3 follow-up questions from missing keywords and KB.
 """
 
@@ -648,7 +647,7 @@ def diagnose_weakness(evaluation_result: dict) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-#  TEST SUITE
+#  SELF-TESTS
 # ---------------------------------------------------------------------------
 
 def test_inference() -> None:
@@ -657,7 +656,6 @@ def test_inference() -> None:
     """
     print("=" * 70)
     print("  VivaLens AI — Inference Engine Test Suite (v1.1)")
-    print("  Agent: NEXUS | Module: inference_engine.py")
     print("=" * 70)
 
     # ---- TEST 1: Strong AI Answer ----

@@ -1,7 +1,6 @@
 """
 text_analyzer.py — VivaLens AI
-Sprint 2 | Agent: PRISM (UI/UX & Speech Engineer)
-
+==============================
 Pure-Python NLP text analysis module for evaluating viva/presentation answers.
 Detects filler words, measures speaking pace, checks keyword coverage,
 and computes heuristic clarity & overall scores.

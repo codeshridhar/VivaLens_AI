@@ -1,27 +1,24 @@
 """
 goal_stack_planner.py — Goal Stack Planning for Viva Preparation
 ================================================================
-Part of VivaLens AI | Agent: CIPHER (Algorithm Specialist)
-
 Generates structured, step-by-step preparation plans using Goal Stack
 Planning (STRIPS-style operator decomposition).
 
 Covers: SPPU TY AI 2024 — Unit 5 (Planning)
 
 Planning System Formalism:
-  • World State: Set of relational predicate strings describing the student's
+  - World State: Set of relational predicate strings describing the student's
     current mastery, speech habits, and topic readiness.
-  • Goal Stack: LIFO stack containing compound goals, predicate sub-goals,
+  - Goal Stack: LIFO stack containing compound goals, predicate sub-goals,
     and planning operators (actions).
-  • Operators: Schema with Preconditions, Add List, and Delete List.
-  • Plan Output: Total-order sequence of concrete actions required to transition
+  - Operators: Schema with Preconditions, Add List, and Delete List.
+  - Plan Output: Total-order sequence of concrete actions required to transition
     from current state to goal state.
 
-Integration notes for PRISM / FORGE:
-  - Main entry: generate_study_plan(performance_report, target_score)
-  - Accepts output directly from inference_engine.py and text_analyzer.py
-  - Returns: list[dict] with keys:
-      step, goal, sub_goal, action, estimated_time, priority
+Main entry: generate_study_plan(performance_report, target_score)
+Accepts output directly from inference_engine.py and text_analyzer.py
+Returns: list[dict] with keys:
+    step, goal, sub_goal, action, estimated_time, priority
 """
 
 import sys
@@ -432,7 +429,7 @@ def _run_tests() -> None:
     """Run Goal Stack Planner test scenarios and print structured output."""
 
     print("=" * 75)
-    print("  CIPHER — goal_stack_planner.py  |  TEST SUITE")
+    print("  VivaLens AI — Goal Stack Planner Test Suite")
     print("=" * 75)
 
     # ── Scenario 1: Comprehensive Viva Diagnostic Report ──
