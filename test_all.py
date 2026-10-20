@@ -151,6 +151,71 @@ def test_slide_analyzer_graceful_error() -> None:
     assert result.get("weaknesses"), "expected a weakness/error message"
 
 
+def test_slide_analyzer_dimensions() -> None:
+    """Slide analyzer: a real deck must produce every scored dimension."""
+    from slide_analyzer import analyze_presentation
+
+    sample = Path(__file__).resolve().parent / "sample_data" / "sample_slides.pptx"
+    if not sample.exists():
+        raise AssertionError("sample_slides.pptx is missing")
+
+    result = analyze_presentation(str(sample), topic="AI")
+
+    assert result["total_slides"] > 0, "expected at least one slide"
+    assert len(result["dimensions"]) == 9, (
+        f"expected 9 dimensions, got {len(result['dimensions'])}"
+    )
+    for name, data in result["dimensions"].items():
+        assert 0.0 <= data["score"] <= 10.0, f"dimension {name} out of range"
+        assert data["detail"], f"dimension {name} has no detail text"
+
+    assert result["slide_details"], "expected per-slide details"
+    for sd in result["slide_details"]:
+        for key in ("slide_no", "title", "word_count", "bullet_count", "score", "level"):
+            assert key in sd, f"slide detail missing '{key}'"
+
+    assert result["structure"]["has_title_slide"], "title slide should be detected"
+    assert result["structure"]["has_agenda"], "agenda slide should be detected"
+    assert result["structure"]["has_conclusion"], "conclusion slide should be detected"
+    assert result["visual"]["tables"] >= 1, "the table slide should be detected"
+    assert result["timing"]["estimated_minutes"] > 0, "timing must be estimated"
+    assert result["title_coverage_pct"] > 0, "title coverage should be measured"
+
+
+def test_slide_analyzer_detects_problems() -> None:
+    """Slide analyzer: real defects in the sample deck must be reported."""
+    from slide_analyzer import analyze_presentation
+
+    sample = Path(__file__).resolve().parent / "sample_data" / "sample_slides.pptx"
+    result = analyze_presentation(str(sample), topic="AI")
+
+    issues = result["issues"]
+    assert issues["critical"], "the deliberately unreadable slide must be critical"
+    assert any("font size" in i.lower() for i in issues["critical"]), (
+        "expected a font-size complaint"
+    )
+    assert result["font_stats"]["min_explicit_pt"] is not None, (
+        "explicit font sizes must be measured"
+    )
+    assert result["top_fixes"], "expected a prioritised fix list"
+
+
+def test_slide_analyzer_topic_coverage() -> None:
+    """Slide analyzer: keyword coverage must be measured against the KB."""
+    from slide_analyzer import analyze_presentation
+
+    sample = Path(__file__).resolve().parent / "sample_data" / "sample_slides.pptx"
+    result = analyze_presentation(str(sample), topic="AI")
+
+    report = result["topic_report"]
+    assert report["resolved_topic"] == "Artificial Intelligence", (
+        f"topic alias not resolved: {report['resolved_topic']}"
+    )
+    assert report["expected_keywords"], "expected keywords from the knowledge base"
+    assert report["matched_keywords"], "expected some matching keywords"
+    assert 0.0 <= report["coverage_pct"] <= 100.0, "coverage must be a percentage"
+
+
 def test_all_modules_import() -> None:
     """Integration: every project module must import without ImportError."""
     modules = [
@@ -194,6 +259,9 @@ def main() -> int:
     run_test(8, "slide_analyzer graceful on missing file", test_slide_analyzer_graceful_error)
     run_test(9, "all 7 modules import cleanly", test_all_modules_import)
     run_test(10, "speech_module availability probe", test_speech_module_availability)
+    run_test(11, "slide_analyzer scores 9 dimensions", test_slide_analyzer_dimensions)
+    run_test(12, "slide_analyzer detects real defects", test_slide_analyzer_detects_problems)
+    run_test(13, "slide_analyzer measures topic coverage", test_slide_analyzer_topic_coverage)
 
     # --- Summary ---
     passed = sum(1 for _, ok, _ in RESULTS if ok)

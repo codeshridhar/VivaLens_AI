@@ -13,7 +13,22 @@
 | 3 | **CSP Question Generator** | Backtracking search + constraint propagation generates balanced, non-repeating viva question sets (difficulty, time, Bloom's taxonomy). |
 | 4 | **A\* Improvement Path Finder** | A* search with an admissible heuristic finds the optimal study sequence to lift weak topics above a target score. |
 | 5 | **Goal Stack Study Plan** | STRIPS-style goal stack planning turns your score gap into a concrete, step-by-step preparation plan. |
-| + | **Slide Analyzer** *(bonus)* | Upload a PPT/PDF and get scored on content density, structure, visual balance and topic relevance. |
+| + | **Slide Deck Analyzer** *(bonus)* | Reads the actual PPTX (shape geometry, run-level font sizes, notes, tables, charts) and scores the deck across **nine dimensions**. |
+| + | **Analytics Dashboard** *(bonus)* | Stores every answer you evaluate and shows the trend, topic mastery, score distribution, a drill-down log of how each answer was given, and CSV export. |
+
+### Slide Deck Analyzer — nine measured dimensions
+
+| Dimension | What it measures |
+|-----------|------------------|
+| Content Density | Words per slide against the 20–50 word sweet spot |
+| Deck Structure | Title coverage, plus detection of title / agenda / conclusion slides and duplicate titles |
+| Typography | Smallest and largest font, number of font families, title-vs-body hierarchy |
+| Layout Integrity | Off-slide shapes, overlapping boxes and text that overflows its frame |
+| Visual Support | Share of slides carrying an image, chart or table |
+| Bullet Quality | Bullet length, sentence fragments, average words per bullet |
+| Topic Relevance | Keyword coverage against the unit's knowledge base, with the missing terms listed |
+| Delivery Timing | Estimated speaking time against your target slot |
+| Speaker Notes | How much of the deck you have actually prepared |
 
 ---
 
@@ -102,13 +117,26 @@ VivaLens_AI/
 ├── csp_question_gen.py      # CSP backtracking question gen (Unit 3)
 ├── astar_improvement.py     # A* study path finder (Unit 2)
 ├── goal_stack_planner.py    # Goal stack study planner (Unit 5)
-├── slide_analyzer.py        # PPT/PDF scoring (bonus)
-├── test_all.py              # End-to-end test suite
+├── slide_analyzer.py        # PPTX/PDF deck scoring (bonus)
+├── test_all.py              # End-to-end test suite (13 tests)
 ├── requirements.txt         # All dependencies
 ├── README.md                # This file
 └── sample_data/
     ├── sample_answers.txt   # Sample viva answers for testing
-    └── sample_slides.pptx   # Sample presentation for testing
+    ├── sample_slides.pptx   # Ready-made sample deck (with a few realistic flaws)
+    └── generate_sample_deck.py  # Rebuilds the sample deck
+```
+
+### Try it without uploading anything
+
+The Slide Analyzer tab has a **"Use the bundled sample deck"** checkbox. It
+analyses `sample_data/sample_slides.pptx`, which deliberately contains an
+overloaded slide, an unreadable 11pt slide and a slide with no notes — so
+you can see the analyzer catch real problems.
+
+```bash
+# regenerate the sample deck at any time
+python sample_data/generate_sample_deck.py
 ```
 
 ---

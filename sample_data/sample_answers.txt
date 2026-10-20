@@ -1,0 +1,63 @@
+Sample viva answers used for manual testing of the analyzer.
+
+Each answer is a short, spoken-style response to a typical viva question.
+Paste one into the Viva Evaluator to see the scoring in action.
+
+--------------------------------------------------------------------
+QUESTION: What is A* search and why is it better than uniform cost search?
+
+ANSWER:
+A* search is an informed search algorithm that selects the next node to
+expand using the evaluation function f(n) = g(n) + h(n), where g(n) is the
+cost already paid to reach the node and h(n) is the heuristic estimate of
+the remaining cost to reach the goal. It is better than uniform cost search
+because the heuristic guides the search towards the goal, so it expands far
+fewer nodes. With an admissible heuristic, A* is also guaranteed to return
+an optimal path.
+
+--------------------------------------------------------------------
+QUESTION: Explain forward chaining and backward chaining.
+
+ANSWER:
+Forward chaining starts from the known facts in the knowledge base and
+repeatedly applies the rules whose premises are satisfied, deriving new
+facts until no further rule can fire. It is fast and productive but may
+generate many irrelevant facts. Backward chaining works in the opposite
+direction: it starts from the goal, selects a rule that could produce it,
+and then recursively tries to satisfy the premises of that rule. It is
+useful when the goal is specific and the search space is large.
+
+--------------------------------------------------------------------
+QUESTION: What is a deadlock and what are the four necessary conditions?
+
+ANSWER:
+A deadlock is a situation in which a set of processes are each waiting for
+an event that only another process in the same set can cause, so none of
+them can proceed. Coffman identified four necessary conditions: mutual
+exclusion, hold and wait, no preemption, and circular wait. A deadlock can
+only occur when all four hold simultaneously. Deadlock prevention breaks
+one of the conditions directly, while deadlock avoidance uses safe-state
+checks and the Banker's algorithm to choose allocations carefully.
+
+--------------------------------------------------------------------
+QUESTION: What is normalisation and why are 1NF, 2NF and 3NF needed?
+
+ANSWER:
+Normalisation is the process of organising relations to reduce redundancy
+and avoid update anomalies. First normal form requires atomic values and no
+repeating groups. Second normal form additionally requires that every
+non-prime attribute depends on the whole candidate key, which removes
+partial dependency. Third normal form requires that every non-prime
+attribute depends only on the key, removing transitive dependency.
+Boyce-Codd normal form is the strongest of the practical normal forms.
+
+--------------------------------------------------------------------
+QUESTION: How does the TCP three-way handshake establish a connection?
+
+ANSWER:
+The client sends a SYN segment with an initial sequence number. The server
+replies with a SYN-ACK segment carrying its own initial sequence number and
+acknowledging the client's number plus one. The client then sends an ACK
+acknowledging the server's sequence number plus one. At this point both
+sides agree on the initial sequence numbers and the connection is
+established, which also synchronises both sequence number spaces.

@@ -19,6 +19,8 @@ from __future__ import annotations
 
 import streamlit as st
 import time
+from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 # ---------------------------------------------------------------------------
@@ -209,6 +211,8 @@ def _init_session_state() -> None:
     """Initialize all session state keys with safe defaults."""
     defaults = {
         "scores_history": [],
+        "answer_log": [],
+        "slide_reports": [],
         "current_topic": "AI",
         "current_score": 0.0,
         "simulator_questions": [],
@@ -225,6 +229,62 @@ def _init_session_state() -> None:
 
 
 _init_session_state()
+
+
+# ---------------------------------------------------------------------------
+# Answer logging — one canonical record per evaluated answer
+# ---------------------------------------------------------------------------
+
+def _record_answer(
+    topic: str,
+    answer: str,
+    result: dict,
+    source: str = "Evaluator",
+    question: str = "",
+) -> dict:
+    """
+    Append one evaluated answer to the session log.
+
+    The dashboard reads this log, so every number shown there comes from a
+    real evaluation rather than from demo values.
+
+    Args:
+        topic: Topic the answer belongs to.
+        answer: The answer text the student gave.
+        result: The dict returned by text_analyzer.analyze_text().
+        source: Where the answer came from (Evaluator / Simulator).
+        question: The question that was asked, when known.
+
+    Returns:
+        The stored record.
+    """
+    record = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "source": source,
+        "topic": topic,
+        "question": question,
+        "answer": (answer or "").strip(),
+        "score": float(result.get("overall_text_score", 0.0)),
+        "clarity": float(result.get("clarity_score", 0.0)),
+        "keyword_cov": float(result.get("keyword_coverage", 0.0)),
+        "words": int(result.get("word_count", 0)),
+        "sentences": int(result.get("sentence_count", 0)),
+        "fillers": int(result.get("filler_count", 0)),
+        "filler_words": ", ".join(result.get("filler_words_found", []) or []),
+        "pace": result.get("speaking_pace_wpm"),
+        "pace_verdict": result.get("pace_verdict", "unknown"),
+        "keywords_missing": ", ".join(result.get("keywords_missing", []) or []),
+        "avg_sentence_length": result.get("avg_sentence_length", 0.0),
+    }
+
+    st.session_state.answer_log.append(record)
+    st.session_state.scores_history.append({
+        "topic": record["topic"],
+        "score": record["score"],
+        "clarity": record["clarity"],
+        "keyword_cov": record["keyword_cov"],
+    })
+    return record
 
 
 # ---------------------------------------------------------------------------
@@ -453,12 +513,12 @@ elif PAGE == "🎤 Viva Evaluator":
                     fol_result = {"error": str(e)}
 
             st.session_state.current_score = result["overall_text_score"]
-            st.session_state.scores_history.append({
-                "topic": topic,
-                "score": result["overall_text_score"],
-                "clarity": result["clarity_score"],
-                "keyword_cov": result["keyword_coverage"],
-            })
+            _record_answer(
+                topic=topic,
+                answer=answer_text,
+                result=result,
+                source="Evaluator",
+            )
 
             # --- Scorecard display ---
             st.subheader("📋 Scorecard")
@@ -635,67 +695,242 @@ elif PAGE == "🎤 Viva Evaluator":
 
 elif PAGE == "📊 Slide Analyzer":
     st.title("📊 Slide Deck Analyzer")
-    st.markdown("Upload your presentation slides and get an instant quality report.")
+    st.markdown(
+        "Upload your presentation and get a full quality report: structure, "
+        "typography, layout, density, bullet quality, topic coverage and timing."
+    )
 
     if not _HAS_SLIDE:
         st.warning(
-            "⚠️ `slide_analyzer.py` not found yet. "
-            "This module will be available once the Bonus Module is compiled."
+            "⚠️ `slide_analyzer.py` is not available in this environment."
         )
 
     st.divider()
 
-    slide_topic = st.selectbox(
-        "Presentation Topic",
-        ["AI", "DSA", "DBMS", "OS", "CN", "Other"],
-        key="slide_topic",
-    )
+    opt1, opt2, opt3 = st.columns([2, 2, 3])
+    with opt1:
+        slide_topic = st.selectbox(
+            "Presentation Topic",
+            ["AI", "DSA", "DBMS", "OS", "CN", "Other"],
+            key="slide_topic",
+        )
+    with opt2:
+        target_minutes = st.number_input(
+            "Target duration (min)", 3, 60, 10, 1, key="slide_target_min",
+        )
+    with opt3:
+        st.caption(
+            "Try the bundled sample deck to see the analyzer in action, "
+            "or upload your own PPTX / PDF."
+        )
+        sample_path = Path(__file__).resolve().parent / "sample_data" / "sample_slides.pptx"
+        use_sample = st.checkbox(
+            "Use the bundled sample deck", value=False, key="slide_use_sample",
+        )
 
-    uploaded_file = st.file_uploader(
-        "Upload PPTX or PDF",
-        type=["pptx", "pdf"],
-        help="Maximum file size: 50 MB",
-    )
+    uploaded_file = None
+    if not use_sample:
+        uploaded_file = st.file_uploader(
+            "Upload PPTX or PDF",
+            type=["pptx", "pdf"],
+            help="Maximum file size: 50 MB",
+        )
+        if uploaded_file is not None:
+            st.success(
+                f"📎 File loaded: **{uploaded_file.name}** "
+                f"({uploaded_file.size / 1024:.1f} KB)"
+            )
 
-    if uploaded_file is not None:
-        st.success(f"📎 File loaded: **{uploaded_file.name}** ({uploaded_file.size / 1024:.1f} KB)")
+    if st.button("🔍 Analyze Slides", type="primary", use_container_width=True):
+        if not _HAS_SLIDE:
+            st.info("Slide analyzer module is unavailable.")
+        else:
+            import tempfile, os
+            tmp_path = None
 
-        if st.button("🔍 Analyze Slides", type="primary", use_container_width=True):
-            if _HAS_SLIDE:
-                import tempfile, os
-                suffix = ".pptx" if uploaded_file.name.endswith(".pptx") else ".pdf"
+            if use_sample:
+                if sample_path.exists():
+                    tmp_path = str(sample_path)
+                else:
+                    st.error("Sample deck not found. Generate it with "
+                             "`python sample_data/generate_sample_deck.py`.")
+            elif uploaded_file is not None:
+                suffix = ".pptx" if uploaded_file.name.lower().endswith(".pptx") else ".pdf"
                 tmp_path = os.path.join(tempfile.gettempdir(), f"upload{suffix}")
                 with open(tmp_path, "wb") as f:
                     f.write(uploaded_file.getbuffer())
 
+            if tmp_path:
                 with st.spinner("Analyzing presentation..."):
                     try:
-                        report = analyze_presentation(tmp_path, topic=slide_topic)
+                        report = analyze_presentation(
+                            tmp_path,
+                            topic=slide_topic,
+                            target_minutes=int(target_minutes),
+                        )
                         st.session_state.slide_report = report
+                        st.session_state.slide_reports.append({
+                            "file_name": report.get("file_name", "N/A"),
+                            "score": report.get("overall_score", 0.0),
+                            "grade": report.get("grade", "F"),
+                            "slides": report.get("total_slides", 0),
+                            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        })
                     except Exception as e:
                         st.error(f"Analysis failed: {e}")
                         report = None
 
-                if report:
-                    st.subheader("📋 Slide Report")
-                    sc1, sc2, sc3 = st.columns(3)
-                    sc1.metric("Overall Score", f"{report.get('overall_score', 'N/A')}/10")
-                    sc2.metric("Title Coverage", f"{report.get('title_coverage', 0):.0%}")
-                    sc3.metric("Total Slides", report.get("slide_count", "N/A"))
+    report = st.session_state.slide_report
 
-                    if report.get("overloaded_slides"):
-                        st.warning(
-                            f"⚠️ Overloaded slides (too much text): "
-                            f"{', '.join(map(str, report['overloaded_slides']))}"
-                        )
-                    if report.get("recommendations"):
-                        st.markdown("**💡 Recommendations:**")
-                        for rec in report["recommendations"]:
-                            st.markdown(f"- {rec}")
-            else:
-                st.info("🔄 Slide analyzer module pending.")
-    else:
-        st.info("👆 Upload a PPTX or PDF file to begin analysis.")
+    if report:
+        st.divider()
+        st.subheader("📋 Slide Report")
+
+        score = report.get("overall_score", 0.0)
+        badge_class = (
+            "score-high" if score >= 7 else "score-medium" if score >= 4 else "score-low"
+        )
+
+        hdr1, hdr2 = st.columns([1, 2])
+        with hdr1:
+            st.markdown(
+                f'<span class="score-badge {badge_class}">{score} / 10</span>',
+                unsafe_allow_html=True,
+            )
+            st.caption(f"Grade {report.get('grade', 'F')} — {report.get('verdict', 'N/A')}")
+        with hdr2:
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Slides", report.get("total_slides", 0))
+            m2.metric("Title Coverage", f"{report.get('title_coverage_pct', 0):.0f}%")
+            m3.metric("Avg Words/Slide", report.get("avg_words_per_slide", 0))
+            timing = report.get("timing") or {}
+            m4.metric("Est. Duration", f"{timing.get('estimated_minutes', 0)} min")
+
+        # --- Dimension breakdown ---
+        st.markdown("**Score breakdown by dimension**")
+        dimensions = report.get("dimensions") or {}
+        if dimensions:
+            dim_rows = []
+            for name, data in dimensions.items():
+                dim_rows.append({
+                    "Dimension": data.get("label", name),
+                    "Score": data.get("score", 0.0),
+                    "Detail": data.get("detail", ""),
+                })
+            st.dataframe(
+                dim_rows, hide_index=True, use_container_width=True,
+            )
+            for name, data in dimensions.items():
+                st.progress(
+                    min(data.get("score", 0.0) / 10.0, 1.0),
+                    text=f"{data.get('label', name)}: {data.get('score', 0)}/10",
+                )
+
+        # --- Prioritised fixes ---
+        top_fixes = report.get("top_fixes") or []
+        if top_fixes:
+            st.markdown("**🔧 Fix these first**")
+            for fix in top_fixes:
+                st.markdown(
+                    f"**{fix.get('priority')}. {fix.get('fix')}**  \n"
+                    f"{fix.get('area')} — {fix.get('detail', '')}"
+                )
+
+        # --- Issues by severity ---
+        issues = report.get("issues") or {}
+        if issues.get("critical"):
+            st.error(f"**{len(issues['critical'])} critical issue(s)**")
+            for issue in issues["critical"]:
+                st.markdown(f"- {issue}")
+        if issues.get("warning"):
+            st.warning(f"**{len(issues['warning'])} warning(s)**")
+            for issue in issues["warning"]:
+                st.markdown(f"- {issue}")
+        if issues.get("info"):
+            with st.expander(f"ℹ️ {len(issues['info'])} suggestion(s)"):
+                for issue in issues["info"]:
+                    st.markdown(f"- {issue}")
+
+        # --- Per-slide table ---
+        slide_details = report.get("slide_details") or []
+        if slide_details:
+            st.markdown("**Per-slide breakdown**")
+            rows = []
+            for sd in slide_details:
+                rows.append({
+                    "#": sd.get("slide_no"),
+                    "Title": sd.get("title", "")[:48],
+                    "Score": sd.get("score"),
+                    "Words": sd.get("word_count"),
+                    "Bullets": sd.get("bullet_count"),
+                    "Notes": "yes" if sd.get("has_notes") else "no",
+                    "Level": sd.get("level"),
+                })
+            st.dataframe(rows, hide_index=True, use_container_width=True)
+
+            with st.expander("🔎 Slide-by-slide diagnostics"):
+                for sd in slide_details:
+                    st.markdown(
+                        f"**Slide {sd.get('slide_no')} — {sd.get('title', '')}** "
+                        f"({sd.get('score')}/10, {sd.get('level')})"
+                    )
+                    st.caption(
+                        f"{sd.get('word_count')} words · {sd.get('bullet_count')} bullets · "
+                        f"reading time {sd.get('reading_time_sec')}s · "
+                        f"readability {sd.get('readability')}"
+                    )
+                    font_pt = sd.get("min_font_pt")
+                    if font_pt:
+                        st.caption(f"Smallest font on the slide: {font_pt:.0f}pt")
+                    if sd.get("issues"):
+                        for issue in sd["issues"]:
+                            icon = {"critical": "🔴", "warning": "🟠", "info": "🔵"}.get(
+                                issue.get("severity"), "•"
+                            )
+                            st.markdown(f"{icon} {issue.get('message')}")
+                    else:
+                        st.success("No issues detected on this slide.")
+                    st.divider()
+
+        # --- Topic coverage ---
+        topic_report = report.get("topic_report") or {}
+        if topic_report.get("expected_keywords"):
+            st.markdown("**🎯 Topic keyword coverage**")
+            matched = topic_report.get("matched_keywords", [])
+            missing = topic_report.get("missing_keywords", [])
+            st.progress(
+                min(topic_report.get("coverage_pct", 0.0) / 100.0, 1.0),
+                text=f"{len(matched)}/{len(topic_report['expected_keywords'])} "
+                     f"'{topic_report.get('resolved_topic')}' keywords "
+                     f"({topic_report.get('coverage_pct', 0)}%)",
+            )
+            if matched:
+                st.markdown(f"**Present:** {', '.join(matched[:20])}")
+            if missing:
+                st.markdown(f"**Missing:** {', '.join(missing[:20])}")
+
+        # --- Feedback ---
+        strengths = report.get("strengths") or []
+        weaknesses = report.get("weaknesses") or []
+        recommendations = report.get("recommendations") or []
+
+        fb1, fb2 = st.columns(2)
+        with fb1:
+            st.markdown("**✅ Strengths**")
+            for s in strengths:
+                st.markdown(f"- {s}")
+        with fb2:
+            st.markdown("**⚠️ Weaknesses**")
+            for w in weaknesses:
+                st.markdown(f"- {w}")
+
+        if recommendations:
+            st.markdown("**💡 Recommendations**")
+            for rec in recommendations:
+                st.markdown(f"- {rec}")
+
+    elif not uploaded_file and not use_sample:
+        st.info("👆 Upload a PPTX or PDF file, or tick the sample deck box, to begin.")
 
 
 # ===================================================================
@@ -766,19 +1001,40 @@ elif PAGE == "❓ Viva Simulator":
 
         st.divider()
         if st.button("✅ Submit All Answers", type="primary"):
-            st.success("Answers submitted! Check the 📈 Dashboard for your scores.")
             if _HAS_TEXT_ANALYZER:
+                topic_keywords = {
+                    "AI": ["heuristic", "admissible", "optimal", "search", "cost", "path", "node"],
+                    "DSA": ["complexity", "pivot", "partition", "recursion", "divide"],
+                    "DBMS": ["normalization", "dependency", "anomaly", "decomposition"],
+                    "OS": ["deadlock", "mutual exclusion", "process", "resource"],
+                    "CN": ["SYN", "ACK", "handshake", "TCP", "segment", "port"],
+                }
+                expected_kw = topic_keywords.get(sim_topic, [])
+                evaluated = 0
+
                 for q in st.session_state.simulator_questions:
                     q_id = q.get("id", 0)
+                    q_text = q.get("question", "")
                     ans_text = st.session_state.simulator_answers.get(q_id, "")
                     if ans_text.strip():
-                        result = analyze_text(ans_text)
-                        st.session_state.scores_history.append({
-                            "topic": sim_topic,
-                            "score": result["overall_text_score"],
-                            "clarity": result["clarity_score"],
-                            "keyword_cov": result["keyword_coverage"],
-                        })
+                        result = analyze_text(ans_text, expected_keywords=expected_kw)
+                        _record_answer(
+                            topic=sim_topic,
+                            answer=ans_text,
+                            result=result,
+                            source="Simulator",
+                            question=q_text,
+                        )
+                        evaluated += 1
+
+                if evaluated:
+                    st.success(
+                        f"✅ {evaluated} answer(s) evaluated and saved to the Dashboard."
+                    )
+                else:
+                    st.warning("No answers were filled in — nothing to evaluate.")
+            else:
+                st.warning("Text analyzer unavailable; answers were not scored.")
             st.session_state.simulator_active = False
             st.balloons()
 
@@ -789,42 +1045,80 @@ elif PAGE == "❓ Viva Simulator":
 
 elif PAGE == "📈 Dashboard":
     st.title("📈 Analytics & Study Planner")
-    st.markdown("Track your progress and get an AI-generated study plan.")
+    st.markdown(
+        "Every number below comes from an answer you actually evaluated. "
+        "Review how each answer was delivered, then plan the next study session."
+    )
 
     st.divider()
 
-    # --- Performance overview ---
-    st.subheader("📊 Performance Overview")
+    log = st.session_state.answer_log
     history = st.session_state.scores_history
 
+    # --- Performance overview ---
+    st.subheader("📊 Performance Overview")
+
     if not history:
-        st.info("No evaluations yet — showing demo metrics. Take a viva to see your real stats.")
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Sessions", 0)
+        st.info(
+            "No evaluations yet. Use the **Viva Evaluator** or the "
+            "**Viva Simulator** and your real scores will appear here."
+        )
+        m1, m2, m3, m4, m5 = st.columns(5)
+        m1.metric("Answers", 0)
         m2.metric("Avg Score", "— / 10")
         m3.metric("Avg Clarity", "— / 10")
         m4.metric("Avg Keywords", "— %")
+        m5.metric("Best Score", "— / 10")
     else:
+        import pandas as pd
+
         avg_score = sum(h["score"] for h in history) / len(history)
         avg_clarity = sum(h["clarity"] for h in history) / len(history)
         avg_kw = sum(h["keyword_cov"] for h in history) / len(history)
+        best_score = max(h["score"] for h in history)
+        total_words = sum(r["words"] for r in log) if log else 0
 
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Sessions", len(history))
+        m1, m2, m3, m4, m5 = st.columns(5)
+        m1.metric("Answers", len(history))
         m2.metric("Avg Score", f"{avg_score:.1f}/10")
         m3.metric("Avg Clarity", f"{avg_clarity:.1f}/10")
         m4.metric("Avg Keywords", f"{avg_kw:.0%}")
+        m5.metric("Best Score", f"{best_score:.1f}/10")
+
+        if len(history) >= 2:
+            recent = history[-1]["score"]
+            earlier = history[-2]["score"]
+            delta = recent - earlier
+            st.caption(
+                f"Last answer: **{recent:.1f}/10** "
+                f"({'▲' if delta >= 0 else '▼'} {abs(delta):.1f} vs the previous one) "
+                f"· {total_words} words spoken in total"
+            )
 
         st.divider()
 
-        # Bar chart of scores over time
+        # --- Score trend ---
         st.subheader("📉 Score Trend")
-        import pandas as pd
         df = pd.DataFrame(history)
         df["Session"] = range(1, len(df) + 1)
-        st.bar_chart(df.set_index("Session")[["score", "clarity"]])
+        st.line_chart(df.set_index("Session")[["score", "clarity"]])
 
-        # Topic mastery bars (grouped by topic)
+        # --- Score distribution ---
+        st.subheader("🗃️ Score Distribution")
+        buckets = {"0-3": 0, "4-5": 0, "6-7": 0, "8-10": 0}
+        for h in history:
+            score = h["score"]
+            if score < 4:
+                buckets["0-3"] += 1
+            elif score < 6:
+                buckets["4-5"] += 1
+            elif score < 8:
+                buckets["6-7"] += 1
+            else:
+                buckets["8-10"] += 1
+        st.bar_chart(pd.DataFrame({"Answers": buckets}))
+
+        # --- Topic mastery ---
         st.subheader("🎯 Topic Mastery")
         topic_scores: dict[str, list[float]] = {}
         for h in history:
@@ -832,39 +1126,140 @@ elif PAGE == "📈 Dashboard":
 
         for topic_name, scores in topic_scores.items():
             avg = sum(scores) / len(scores)
-            st.progress(min(avg / 10.0, 1.0), text=f"{topic_name}: {avg:.1f}/10 ({len(scores)} session(s))")
+            st.progress(
+                min(avg / 10.0, 1.0),
+                text=f"{topic_name}: {avg:.1f}/10 ({len(scores)} answer(s))",
+            )
+
+    # --- Answer log: how each answer was actually given ---
+    if log:
+        st.divider()
+        st.subheader("🗂️ Answer Log")
+
+        import pandas as pd
+
+        rows = []
+        for i, rec in enumerate(log, start=1):
+            rows.append({
+                "#": i,
+                "Time": rec["timestamp"],
+                "Topic": rec["topic"],
+                "Source": rec["source"],
+                "Score": rec["score"],
+                "Clarity": rec["clarity"],
+                "Keywords": f"{rec['keyword_cov']:.0%}",
+                "Words": rec["words"],
+                "Fillers": rec["fillers"],
+                "Pace": rec["pace_verdict"],
+            })
+        st.dataframe(rows, hide_index=True, use_container_width=True)
+
+        st.caption("Open an entry to see the answer itself and what was detected in it.")
+        for i, rec in enumerate(reversed(log), start=1):
+            index = len(log) - i + 1
+            header = (
+                f"**#{index} · {rec['topic']} · {rec['score']}/10** "
+                f"— {rec['timestamp']} ({rec['source']})"
+            )
+            with st.expander(header):
+                if rec["question"]:
+                    st.markdown(f"**Question:** {rec['question']}")
+                st.markdown("**Your answer:**")
+                if rec["answer"]:
+                    st.write(rec["answer"])
+                else:
+                    st.caption("(no text recorded)")
+
+                d1, d2, d3, d4 = st.columns(4)
+                d1.metric("Words", rec["words"])
+                d2.metric("Sentences", rec["sentences"])
+                d3.metric("Filler Words", rec["fillers"])
+                d4.metric("Avg Sentence", f"{rec['avg_sentence_length']}")
+
+                if rec["filler_words"]:
+                    st.warning(f"Filler words used: {rec['filler_words']}")
+                if rec["keywords_missing"]:
+                    st.warning(f"Missing expected keywords: {rec['keywords_missing']}")
+                if rec["pace"] and rec["pace_verdict"] != "unknown":
+                    st.caption(
+                        f"Speaking pace: {rec['pace']} wpm ({rec['pace_verdict']})"
+                    )
+
+        # --- Export ---
+        csv_df = pd.DataFrame(log)
+        st.download_button(
+            "⬇️ Download answer history (CSV)",
+            csv_df.to_csv(index=False).encode("utf-8"),
+            file_name="viva_answer_history.csv",
+            mime="text/csv",
+        )
+
+    # --- Slide deck reports ---
+    slide_reports = st.session_state.slide_reports
+    if slide_reports:
+        st.divider()
+        st.subheader("📊 Slide Deck Reports")
+        st.dataframe(
+            [{
+                "File": r["file_name"],
+                "Slides": r["slides"],
+                "Score": r["score"],
+                "Grade": r["grade"],
+                "Analyzed": r["timestamp"],
+            } for r in reversed(slide_reports)],
+            hide_index=True,
+            use_container_width=True,
+        )
 
     st.divider()
 
     # --- A* Improvement Path ---
     st.subheader("🧭 Optimal Study Path (A* Search)")
+    st.caption(
+        "A* works out the cheapest order for studying your weak topics, "
+        "using each topic's score gap and study-hour cost."
+    )
     if _HAS_ASTAR:
         if st.button("🔍 Find Improvement Path"):
             with st.spinner("Running A* search..."):
                 try:
-                    # Use real weak topics if available, else sensible defaults
                     if history:
                         topic_avg: dict[str, float] = {}
                         for h in history:
-                            topic_avg.setdefault(h["topic"], []).append(h["score"])  # type: ignore
-                        weak_topics = [t for t, s in topic_avg.items()
-                                       if (sum(s) / len(s)) < 7.0]
-                        if not weak_topics:
-                            weak_topics = ["AI", "DBMS"]
+                            topic_avg.setdefault(h["topic"], []).append(h["score"])
+                        current_scores = {
+                            topic: round(sum(scores) / len(scores), 2)
+                            for topic, scores in topic_avg.items()
+                        }
                     else:
-                        weak_topics = ["AI", "DBMS", "OS"]
+                        current_scores = {"AI": 4.5, "DSA": 6.0, "DBMS": 5.0,
+                                          "OS": 6.5, "CN": 5.5}
 
-                    path = find_improvement_path(weak_topics)
-                    st.session_state.improvement_path = path
+                    weak = {t: s for t, s in current_scores.items() if s < 7.0}
+                    if not weak:
+                        st.session_state.improvement_path = []
+                        st.success(
+                            "Every topic is already at or above 7.0 — no study path needed."
+                        )
+                    else:
+                        st.session_state.improvement_path = find_improvement_path(
+                            weak, target_score=7.0, max_hours=20
+                        )
                 except Exception as e:
                     st.error(f"A* search failed: {e}")
 
-        if st.session_state.improvement_path:
-            st.success("Optimal study sequence found!")
-            for i, step in enumerate(st.session_state.improvement_path, 1):
-                st.markdown(f"**Step {i}:** {step}")
+        path = st.session_state.improvement_path
+        if path:
+            st.success(f"Optimal study sequence found — {len(path)} step(s).")
+            for i, step in enumerate(path, 1):
+                st.markdown(
+                    f"**Step {i}: {step.get('topic')}**  \n"
+                    f"{step.get('action')}  \n"
+                    f"_{step.get('current_score')}/10 → {step.get('target_score')}/10, "
+                    f"about {step.get('hours_needed')}h, priority {step.get('priority')}_"
+                )
     else:
-        st.info("ℹ️ `astar_improvement.py` not yet compiled.")
+        st.info("ℹ️ `astar_improvement.py` is not available in this environment.")
 
     st.divider()
 
@@ -932,12 +1327,21 @@ elif PAGE == "📈 Dashboard":
         if st.session_state.study_plan:
             st.success(f"✅ Your personalized plan has {len(st.session_state.study_plan)} step(s):")
             for i, step in enumerate(st.session_state.study_plan, 1):
-                # Alternate st.info / st.success for visual rhythm
-                step_text = step if isinstance(step, str) else str(step)
-                if i % 2 == 1:
-                    st.info(f"**Step {i}:** {step_text}")
+                if isinstance(step, dict):
+                    action = step.get("action") or step.get("goal") or step.get("sub_goal") or ""
+                    meta_bits = []
+                    if step.get("estimated_time"):
+                        meta_bits.append(f"~{step['estimated_time']}")
+                    if step.get("priority") is not None:
+                        meta_bits.append(f"priority {step['priority']}")
+                    meta = f"  ({' | '.join(meta_bits)})" if meta_bits else ""
+                    body = f"**Step {i}:** {action}{meta}"
                 else:
-                    st.success(f"**Step {i}:** {step_text}")
+                    body = f"**Step {i}:** {step}"
+                if i % 2 == 1:
+                    st.info(body)
+                else:
+                    st.success(body)
     else:
         st.info(
             "ℹ️ `goal_stack_planner.py` not yet compiled. "
