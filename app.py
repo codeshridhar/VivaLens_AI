@@ -40,118 +40,15 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* Main background */
-    .stApp {
-        background-color: #0e1117;
+    .big-score {
+        font-size: 2.2rem;
+        font-weight: 600;
+        line-height: 1.1;
+        color: inherit;
     }
-    /* Metric cards */
-    div[data-testid="stMetric"] {
-        background-color: #1a1d24;
-        border: 1px solid #2d3139;
-        border-radius: 10px;
-        padding: 15px;
-    }
-    /* Sidebar header */
-    .sidebar-title {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 0.2rem;
-    }
-    .sidebar-sub {
-        font-size: 0.85rem;
-        color: #8b8fa3;
-    }
-    /* Score badge */
-    .score-badge {
-        display: inline-block;
-        padding: 6px 18px;
-        border-radius: 20px;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #fff;
-    }
-    .score-high   { background-color: #21c354; }
-    .score-medium { background-color: #f5a623; }
-    .score-low    { background-color: #e74c3c; }
-
-    /* Native-style buttons */
-    .stButton > button {
-        background: #1c2030;
-        color: #e6e9f2;
-        font-weight: 500;
-        border: 1px solid #30364a;
-        border-radius: 8px;
-        transition: background 0.15s ease, border-color 0.15s ease;
-    }
-    .stButton > button:hover {
-        background: #242a3d;
-        border-color: #4a5a7a;
-        color: #ffffff;
-    }
-
-    /* ----- Landing page styling ----- */
-    .hero-title {
-        font-size: 3.2rem;
-        font-weight: 800;
-        color: #ffffff;
-        text-align: center;
-        margin-top: 1rem;
-        margin-bottom: 0.3rem;
-        letter-spacing: -1px;
-    }
-    .hero-sub {
-        font-size: 1.15rem;
-        color: #a0a5b8;
-        text-align: center;
-        margin-bottom: 2.5rem;
-    }
-    .feature-card {
-        background: linear-gradient(145deg, #1a1d24, #22262f);
-        border: 1px solid #2d3139;
-        border-radius: 14px;
-        padding: 24px 20px;
-        min-height: 210px;
-        text-align: center;
-        transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-    .feature-card:hover {
-        transform: translateY(-4px);
-        border-color: #4a90e2;
-    }
-    .feature-icon {
-        font-size: 2.4rem;
-        margin-bottom: 10px;
-    }
-    .feature-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 8px;
-    }
-    .feature-desc {
+    .muted {
         font-size: 0.9rem;
-        color: #a0a5b8;
-        line-height: 1.5;
-    }
-    .cta-banner {
-        background: linear-gradient(90deg, #4a90e2, #6b5fbf);
-        padding: 18px 24px;
-        border-radius: 12px;
-        text-align: center;
-        color: #ffffff;
-        font-size: 1rem;
-        margin-top: 2rem;
-    }
-
-    /* ----- Study plan step styling ----- */
-    .plan-step {
-        background-color: #1a1d24;
-        border-left: 4px solid #4a90e2;
-        padding: 12px 18px;
-        margin: 8px 0;
-        border-radius: 6px;
-        color: #e0e3eb;
+        opacity: 0.7;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -291,120 +188,70 @@ def _record_answer(
 # Sidebar navigation
 # ---------------------------------------------------------------------------
 
-st.sidebar.markdown(
-    '<p class="sidebar-title">🎓 VivaLens AI</p>'
-    '<p class="sidebar-sub">Presentation & Viva Analyzer</p>',
-    unsafe_allow_html=True,
-)
+st.sidebar.markdown("**VivaLens AI**")
+st.sidebar.caption("Viva & presentation analyzer")
 st.sidebar.divider()
 
 PAGE = st.sidebar.radio(
     "Navigation",
     [
-        "🏠 Home",
-        "🎤 Viva Evaluator",
-        "📊 Slide Analyzer",
-        "❓ Viva Simulator",
-        "📈 Dashboard",
+        "Home",
+        "Viva Evaluator",
+        "Slide Analyzer",
+        "Viva Simulator",
+        "Dashboard",
     ],
     index=0,
 )
 
 st.sidebar.divider()
-st.sidebar.caption("VivaLens AI v1.1 · 100% Free & Offline")
+st.sidebar.caption("Runs locally. No API keys, no accounts.")
+st.sidebar.caption(
+    "Switch between light and dark from the menu: Settings -> Theme."
+)
 
 
 # ===================================================================
-#  TAB 1 — 🏠 Home (Product Landing Page)
+#  TAB 1 — Home
 # ===================================================================
 
-if PAGE == "🏠 Home":
-    # --- Hero section ---
-    st.markdown(
-        '<p class="hero-title">Welcome to VivaLens AI</p>',
-        unsafe_allow_html=True,
+if PAGE == "Home":
+    st.title("VivaLens AI")
+    st.write(
+        "Scores your viva answers and checks your presentation slides. "
+        "Everything runs on your machine, offline."
     )
+
+    st.subheader("What it does")
     st.markdown(
-        '<p class="hero-sub">Your Personal AI-Powered Presentation and Viva Analyzer</p>',
-        unsafe_allow_html=True,
+        """
+- **Viva Evaluator** — type or speak an answer and get a score for clarity,
+  keyword coverage, speaking pace and filler words.
+- **Slide Analyzer** — upload a PPTX or PDF and get a report on structure,
+  typography, density and layout.
+- **Viva Simulator** — practise against generated questions for a chosen
+  topic and difficulty.
+- **Dashboard** — see how your scores are trending and get a study plan for
+  your weak topics.
+        """
     )
 
-    # --- 4 Feature Cards ---
-    col1, col2, col3, col4 = st.columns(4, gap="medium")
-
-    with col1:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">🗣️</div>
-            <div class="feature-title">Viva Evaluator</div>
-            <div class="feature-desc">
-                Speak or type your answers and get instant feedback on clarity,
-                keywords, pace, and filler words.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <div class="feature-title">Slide Analyzer</div>
-            <div class="feature-desc">
-                Upload your PPTX or PDF slides and receive a detailed quality
-                report with actionable improvement tips.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">❓</div>
-            <div class="feature-title">Viva Simulator</div>
-            <div class="feature-desc">
-                Practice with AI-generated questions tailored to your topic,
-                difficulty level, and Bloom's taxonomy coverage.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col4:
-        st.markdown("""
-        <div class="feature-card">
-            <div class="feature-icon">📈</div>
-            <div class="feature-title">Smart Study Planner</div>
-            <div class="feature-desc">
-                Get a personalized step-by-step study plan to reach your
-                target score, built using intelligent planning algorithms.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # --- Call-to-action banner ---
-    st.markdown("""
-    <div class="cta-banner">
-        🚀 <b>Ready to boost your viva performance?</b> &nbsp;
-        Pick a tool from the left sidebar and start practicing — it's 100% free and runs offline.
-    </div>
-    """, unsafe_allow_html=True)
-
-    # --- Quick stats ---
-    st.markdown("")
-    st.markdown("")
-    s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Topics Covered", "5+")
-    s2.metric("AI Algorithms", "7")
-    s3.metric("Offline Ready", "✅ Yes")
-    s4.metric("Cost", "Free")
+    st.caption(
+        "Built for the SPPU TY AI 2024 syllabus: first-order logic, "
+        "heuristic search, CSP, and goal stack planning."
+    )
 
 
 # ===================================================================
-#  TAB 2 — 🎤 Viva Answer Evaluator
+#  TAB 2 — Viva Answer Evaluator
 # ===================================================================
 
-elif PAGE == "🎤 Viva Evaluator":
-    st.title("🎤 Viva Answer Evaluator")
-    st.markdown("Speak or type your answer and get instant AI-powered feedback.")
+elif PAGE == "Viva Evaluator":
+    st.title("Viva answer evaluator")
+    st.markdown(
+        "Type or speak an answer to get feedback on clarity, keywords, "
+        "pace and filler words."
+    )
 
     if not _HAS_TEXT_ANALYZER:
         st.error("❌ `text_analyzer.py` not found. Please check that all project files are present.")
@@ -423,7 +270,7 @@ elif PAGE == "🎤 Viva Evaluator":
     with col_cfg2:
         input_mode = st.radio(
             "Input Mode",
-            ["✍️ Type Answer", "🎙️ Record Audio", "📁 Upload WAV"],
+            ["Type answer", "Record audio", "Upload WAV"],
             horizontal=True,
         )
 
@@ -439,19 +286,19 @@ elif PAGE == "🎤 Viva Evaluator":
     # --- Answer input ---
     answer_text = ""
 
-    if input_mode == "✍️ Type Answer":
+    if input_mode == "Type answer":
         answer_text = st.text_area(
             "Type your answer below:",
             height=180,
             placeholder="Start typing your viva answer here...",
         )
 
-    elif input_mode == "🎙️ Record Audio":
+    elif input_mode == "Record audio":
         if _HAS_SPEECH:
             speech_status = is_speech_available()
             if speech_status["mic_available"]:
                 duration = st.slider("Recording duration (seconds)", 5, 60, 15)
-                if st.button("🔴 Start Recording"):
+                if st.button("Start recording"):
                     with st.spinner("Recording... Speak now!"):
                         wav_path = record_audio(duration_sec=duration)
                     if wav_path:
@@ -471,7 +318,7 @@ elif PAGE == "🎤 Viva Evaluator":
             st.warning("⚠️ `speech_module.py` not found.")
             answer_text = st.text_area("Fallback — type your answer:", height=180)
 
-    elif input_mode == "📁 Upload WAV":
+    elif input_mode == "Upload WAV":
         uploaded_wav = st.file_uploader("Upload a WAV file", type=["wav"])
         if uploaded_wav is not None and _HAS_SPEECH:
             import tempfile, os
@@ -490,7 +337,7 @@ elif PAGE == "🎤 Viva Evaluator":
     st.divider()
 
     # --- Evaluate button ---
-    if st.button("🔍 Evaluate Answer", type="primary", use_container_width=True):
+    if st.button("Evaluate answer", type="primary", width="stretch"):
         if not answer_text.strip():
             st.warning("Please provide an answer before evaluating.")
         else:
@@ -521,12 +368,11 @@ elif PAGE == "🎤 Viva Evaluator":
             )
 
             # --- Scorecard display ---
-            st.subheader("📋 Scorecard")
+            st.subheader("Scorecard")
 
             score = result["overall_text_score"]
-            badge_class = "score-high" if score >= 7 else "score-medium" if score >= 4 else "score-low"
             st.markdown(
-                f'<span class="score-badge {badge_class}">{score} / 10</span>',
+                f'<div class="big-score">{score} / 10</div>',
                 unsafe_allow_html=True,
             )
 
@@ -582,7 +428,7 @@ elif PAGE == "🎤 Viva Evaluator":
 
             # --- Actionable Suggestions (bulleted) ---
             st.divider()
-            st.subheader("💡 Actionable Suggestions")
+            st.subheader("Suggestions")
             suggestions: list[str] = []
             if result["filler_count"] > 3:
                 suggestions.append(
@@ -611,14 +457,14 @@ elif PAGE == "🎤 Viva Evaluator":
                     "**Improve structure** — use a clear intro → explanation → example flow."
                 )
             if not suggestions:
-                suggestions.append("Great job! Keep practicing to maintain this quality. 🎉")
+                suggestions.append("Great job. Keep practicing to maintain this quality.")
 
             for s in suggestions:
                 st.markdown(f"- {s}")
 
             # --- Follow-up Questions ---
             st.divider()
-            st.subheader("🔁 Recommended Follow-up Questions")
+            st.subheader("Follow-up questions")
             st.caption("Practice these next to deepen your understanding of this topic.")
 
             followups: list[str] = []
@@ -683,18 +529,18 @@ elif PAGE == "🎤 Viva Evaluator":
             # FOL reasoning trace
             if fol_result and "error" not in fol_result:
                 st.divider()
-                st.subheader("🧠 FOL Reasoning Trace")
+                st.subheader("Reasoning trace")
                 st.json(fol_result)
             elif _HAS_INFERENCE and fol_result and "error" in fol_result:
                 st.warning(f"FOL engine error: {fol_result['error']}")
 
 
 # ===================================================================
-#  TAB 3 — 📊 Slide Deck Analyzer  (unchanged)
+#  TAB 3 — Slide Deck Analyzer
 # ===================================================================
 
-elif PAGE == "📊 Slide Analyzer":
-    st.title("📊 Slide Deck Analyzer")
+elif PAGE == "Slide Analyzer":
+    st.title("Slide analyzer")
     st.markdown(
         "Upload your presentation and get a full quality report: structure, "
         "typography, layout, density, bullet quality, topic coverage and timing."
@@ -737,11 +583,11 @@ elif PAGE == "📊 Slide Analyzer":
         )
         if uploaded_file is not None:
             st.success(
-                f"📎 File loaded: **{uploaded_file.name}** "
+                f"File loaded: **{uploaded_file.name}** "
                 f"({uploaded_file.size / 1024:.1f} KB)"
             )
 
-    if st.button("🔍 Analyze Slides", type="primary", use_container_width=True):
+    if st.button("Analyze slides", type="primary", width="stretch"):
         if not _HAS_SLIDE:
             st.info("Slide analyzer module is unavailable.")
         else:
@@ -784,17 +630,14 @@ elif PAGE == "📊 Slide Analyzer":
 
     if report:
         st.divider()
-        st.subheader("📋 Slide Report")
+        st.subheader("Slide report")
 
         score = report.get("overall_score", 0.0)
-        badge_class = (
-            "score-high" if score >= 7 else "score-medium" if score >= 4 else "score-low"
-        )
 
         hdr1, hdr2 = st.columns([1, 2])
         with hdr1:
             st.markdown(
-                f'<span class="score-badge {badge_class}">{score} / 10</span>',
+                f'<div class="big-score">{score} / 10</div>',
                 unsafe_allow_html=True,
             )
             st.caption(f"Grade {report.get('grade', 'F')} — {report.get('verdict', 'N/A')}")
@@ -818,7 +661,7 @@ elif PAGE == "📊 Slide Analyzer":
                     "Detail": data.get("detail", ""),
                 })
             st.dataframe(
-                dim_rows, hide_index=True, use_container_width=True,
+                dim_rows, hide_index=True, width="stretch",
             )
             for name, data in dimensions.items():
                 st.progress(
@@ -829,7 +672,7 @@ elif PAGE == "📊 Slide Analyzer":
         # --- Prioritised fixes ---
         top_fixes = report.get("top_fixes") or []
         if top_fixes:
-            st.markdown("**🔧 Fix these first**")
+            st.markdown("**Fix these first**")
             for fix in top_fixes:
                 st.markdown(
                     f"**{fix.get('priority')}. {fix.get('fix')}**  \n"
@@ -847,7 +690,7 @@ elif PAGE == "📊 Slide Analyzer":
             for issue in issues["warning"]:
                 st.markdown(f"- {issue}")
         if issues.get("info"):
-            with st.expander(f"ℹ️ {len(issues['info'])} suggestion(s)"):
+            with st.expander(f"{len(issues['info'])} suggestion(s)"):
                 for issue in issues["info"]:
                     st.markdown(f"- {issue}")
 
@@ -866,9 +709,9 @@ elif PAGE == "📊 Slide Analyzer":
                     "Notes": "yes" if sd.get("has_notes") else "no",
                     "Level": sd.get("level"),
                 })
-            st.dataframe(rows, hide_index=True, use_container_width=True)
+            st.dataframe(rows, hide_index=True, width="stretch")
 
-            with st.expander("🔎 Slide-by-slide diagnostics"):
+            with st.expander("Slide-by-slide diagnostics"):
                 for sd in slide_details:
                     st.markdown(
                         f"**Slide {sd.get('slide_no')} — {sd.get('title', '')}** "
@@ -930,15 +773,15 @@ elif PAGE == "📊 Slide Analyzer":
                 st.markdown(f"- {rec}")
 
     elif not uploaded_file and not use_sample:
-        st.info("👆 Upload a PPTX or PDF file, or tick the sample deck box, to begin.")
+        st.info("Upload a PPTX or PDF file, or tick the sample deck box, to begin.")
 
 
 # ===================================================================
-#  TAB 4 — ❓ Interactive Viva Simulator  (unchanged)
+#  TAB 4 — Viva Simulator
 # ===================================================================
 
-elif PAGE == "❓ Viva Simulator":
-    st.title("❓ Interactive Viva Simulator")
+elif PAGE == "Viva Simulator":
+    st.title("Viva simulator")
     st.markdown("Simulate a real viva session with AI-generated questions.")
 
     if not _HAS_CSP:
@@ -958,7 +801,7 @@ elif PAGE == "❓ Viva Simulator":
 
     st.divider()
 
-    if st.button("🚀 Start Viva Session", type="primary", use_container_width=True):
+    if st.button("Start session", type="primary", width="stretch"):
         if _HAS_CSP:
             with st.spinner("Generating questions using CSP solver..."):
                 try:
@@ -985,7 +828,7 @@ elif PAGE == "❓ Viva Simulator":
             st.info("ℹ️ Using demo questions (CSP module not yet compiled).")
 
     if st.session_state.simulator_active and st.session_state.simulator_questions:
-        st.subheader(f"📝 Viva Session — {sim_topic} ({sim_difficulty})")
+        st.subheader(f"Session — {sim_topic} ({sim_difficulty})")
         st.caption(f"⏱️ Recommended time per question: {time_limit}s")
 
         for q in st.session_state.simulator_questions:
@@ -1000,7 +843,7 @@ elif PAGE == "❓ Viva Simulator":
                 st.session_state.simulator_answers[q_id] = ans
 
         st.divider()
-        if st.button("✅ Submit All Answers", type="primary"):
+        if st.button("Submit answers", type="primary"):
             if _HAS_TEXT_ANALYZER:
                 topic_keywords = {
                     "AI": ["heuristic", "admissible", "optimal", "search", "cost", "path", "node"],
@@ -1040,11 +883,11 @@ elif PAGE == "❓ Viva Simulator":
 
 
 # ===================================================================
-#  TAB 5 — 📈 Analytics & Study Planner  (overhauled)
+#  TAB 5 — Dashboard
 # ===================================================================
 
-elif PAGE == "📈 Dashboard":
-    st.title("📈 Analytics & Study Planner")
+elif PAGE == "Dashboard":
+    st.title("Dashboard")
     st.markdown(
         "Every number below comes from an answer you actually evaluated. "
         "Review how each answer was delivered, then plan the next study session."
@@ -1056,7 +899,7 @@ elif PAGE == "📈 Dashboard":
     history = st.session_state.scores_history
 
     # --- Performance overview ---
-    st.subheader("📊 Performance Overview")
+    st.subheader("Performance overview")
 
     if not history:
         st.info(
@@ -1098,13 +941,13 @@ elif PAGE == "📈 Dashboard":
         st.divider()
 
         # --- Score trend ---
-        st.subheader("📉 Score Trend")
+        st.subheader("Score trend")
         df = pd.DataFrame(history)
         df["Session"] = range(1, len(df) + 1)
         st.line_chart(df.set_index("Session")[["score", "clarity"]])
 
         # --- Score distribution ---
-        st.subheader("🗃️ Score Distribution")
+        st.subheader("Score distribution")
         buckets = {"0-3": 0, "4-5": 0, "6-7": 0, "8-10": 0}
         for h in history:
             score = h["score"]
@@ -1119,7 +962,7 @@ elif PAGE == "📈 Dashboard":
         st.bar_chart(pd.DataFrame({"Answers": buckets}))
 
         # --- Topic mastery ---
-        st.subheader("🎯 Topic Mastery")
+        st.subheader("Topic mastery")
         topic_scores: dict[str, list[float]] = {}
         for h in history:
             topic_scores.setdefault(h["topic"], []).append(h["score"])
@@ -1134,7 +977,7 @@ elif PAGE == "📈 Dashboard":
     # --- Answer log: how each answer was actually given ---
     if log:
         st.divider()
-        st.subheader("🗂️ Answer Log")
+        st.subheader("Answer log")
 
         import pandas as pd
 
@@ -1152,7 +995,7 @@ elif PAGE == "📈 Dashboard":
                 "Fillers": rec["fillers"],
                 "Pace": rec["pace_verdict"],
             })
-        st.dataframe(rows, hide_index=True, use_container_width=True)
+        st.dataframe(rows, hide_index=True, width="stretch")
 
         st.caption("Open an entry to see the answer itself and what was detected in it.")
         for i, rec in enumerate(reversed(log), start=1):
@@ -1188,7 +1031,7 @@ elif PAGE == "📈 Dashboard":
         # --- Export ---
         csv_df = pd.DataFrame(log)
         st.download_button(
-            "⬇️ Download answer history (CSV)",
+            "Download answer history (CSV)",
             csv_df.to_csv(index=False).encode("utf-8"),
             file_name="viva_answer_history.csv",
             mime="text/csv",
@@ -1198,7 +1041,7 @@ elif PAGE == "📈 Dashboard":
     slide_reports = st.session_state.slide_reports
     if slide_reports:
         st.divider()
-        st.subheader("📊 Slide Deck Reports")
+        st.subheader("Slide deck reports")
         st.dataframe(
             [{
                 "File": r["file_name"],
@@ -1208,19 +1051,19 @@ elif PAGE == "📈 Dashboard":
                 "Analyzed": r["timestamp"],
             } for r in reversed(slide_reports)],
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
         )
 
     st.divider()
 
     # --- A* Improvement Path ---
-    st.subheader("🧭 Optimal Study Path (A* Search)")
+    st.subheader("Optimal study path (A* search)")
     st.caption(
         "A* works out the cheapest order for studying your weak topics, "
         "using each topic's score gap and study-hour cost."
     )
     if _HAS_ASTAR:
-        if st.button("🔍 Find Improvement Path"):
+        if st.button("Find improvement path"):
             with st.spinner("Running A* search..."):
                 try:
                     if history:
@@ -1264,7 +1107,7 @@ elif PAGE == "📈 Dashboard":
     st.divider()
 
     # --- Goal Stack Study Plan ---
-    st.subheader("📋 Personalized Study Plan (Goal Stack Planning)")
+    st.subheader("Study plan (goal stack planning)")
     st.caption("Set your current and target scores — the planner will build a step-by-step action plan.")
 
     plan_col1, plan_col2 = st.columns(2)
@@ -1274,7 +1117,7 @@ elif PAGE == "📈 Dashboard":
         target_grade = st.number_input("Target Score (0–10)", 0.0, 10.0, 8.0, 0.5)
 
     if _HAS_PLANNER:
-        if st.button("📝 Generate Study Plan", type="primary", use_container_width=True):
+        if st.button("Generate study plan", type="primary", width="stretch"):
             if target_grade <= current_grade:
                 st.warning("Target should be higher than current score!")
             else:
@@ -1325,7 +1168,7 @@ elif PAGE == "📈 Dashboard":
 
         # Display plan in a clean step-by-step UI
         if st.session_state.study_plan:
-            st.success(f"✅ Your personalized plan has {len(st.session_state.study_plan)} step(s):")
+            st.success(f"Your study plan has {len(st.session_state.study_plan)} step(s):")
             for i, step in enumerate(st.session_state.study_plan, 1):
                 if isinstance(step, dict):
                     action = step.get("action") or step.get("goal") or step.get("sub_goal") or ""
@@ -1354,4 +1197,4 @@ elif PAGE == "📈 Dashboard":
 # ===================================================================
 
 st.divider()
-st.caption("🎓 VivaLens AI · SPPU TY AI 2024 · 100% Free & Offline")
+st.caption("VivaLens AI · SPPU TY AI 2024 · runs locally")

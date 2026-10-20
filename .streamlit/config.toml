@@ -1,10 +1,53 @@
 # VivaLens AI — Streamlit configuration
-# headless = true  -> skips the interactive email/onboarding prompt so
-#                     `streamlit run app.py` always launches cleanly.
+#
+# headless = true        -> skips the interactive email/onboarding prompt so
+#                           `streamlit run app.py` always launches cleanly.
 # gatherUsageStats = false -> fully offline; no telemetry collection.
+#
+# Both a light and a dark palette are defined below. Streamlit shows them in
+# the theme selector (menu -> Settings -> Theme), and the browser's own
+# colour-scheme preference is used by default.
 
 [server]
 headless = true
 
 [browser]
 gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#2f6fed"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f2f4f7"
+textColor = "#1c2024"
+borderColor = "#dfe3e8"
+baseRadius = "0.5rem"
+showWidgetBorder = true
+
+[theme.light]
+primaryColor = "#2f6fed"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f2f4f7"
+textColor = "#1c2024"
+borderColor = "#dfe3e8"
+baseRadius = "0.5rem"
+
+[theme.light.sidebar]
+backgroundColor = "#f7f8fa"
+borderColor = "#e3e7ec"
+primaryColor = "#2f6fed"
+textColor = "#1c2024"
+
+[theme.dark]
+primaryColor = "#4c8bf5"
+backgroundColor = "#101319"
+secondaryBackgroundColor = "#191d25"
+textColor = "#e4e7ec"
+borderColor = "#262b36"
+baseRadius = "0.5rem"
+
+[theme.dark.sidebar]
+backgroundColor = "#14181f"
+borderColor = "#232833"
+primaryColor = "#4c8bf5"
+textColor = "#e4e7ec"

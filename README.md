@@ -103,6 +103,19 @@ python test_all.py
 
 ---
 
+## Light and Dark Theme
+
+Both palettes are defined in `.streamlit/config.toml` (`[theme.light]` and
+`[theme.dark]`), so the app has no hard-coded colours — every widget, chart
+and table follows the active theme.
+
+Switch between them from the Streamlit menu: **Settings → Theme**, or let it
+follow your operating system's light/dark preference.
+
+> Requires Streamlit 1.51 or newer for the dual-theme configuration.
+
+---
+
 ## Project Structure
 
 ```
