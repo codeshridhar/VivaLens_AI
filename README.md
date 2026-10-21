@@ -168,4 +168,4 @@ python sample_data/generate_sample_deck.py
 
 MIT License — free to use, modify, and share for academic and personal purposes.
 
-Copyright (c) 2026 VivaLens AI Team
+Copyright (c) 2026 VivaLens Shridhar
